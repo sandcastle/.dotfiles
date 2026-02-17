@@ -11,6 +11,7 @@ source "$DOTFILES_ROOT/lib/common.sh"
 
 APP_NAME="Google Cloud CLI"
 BINARY="gcloud"
+DEBUG=${DEBUG:-false}
 
 info "Installing $APP_NAME..."
 
@@ -38,7 +39,17 @@ if check_pacman_package "google-cloud-cli"; then
     install_pacman "google-cloud-cli"
 else
     info "Installing from AUR..."
-    install_yay "google-cloud-cli"
+    if [[ "$DEBUG" == true ]]; then
+        # Show full output when debugging
+        install_yay "google-cloud-cli"
+    else
+        # Suppress output normally
+        install_yay "google-cloud-cli" || {
+            error "Failed to install google-cloud-cli via yay"
+            info "Try installing manually: yay -S google-cloud-cli"
+            exit 1
+        }
+    fi
 fi
 
 # Install gcloud components
@@ -108,10 +119,4 @@ else
     fi
 fi
 
-# Ensure PATH includes google-cloud-sdk
-if [[ -f "$HOME/.bashrc" ]] && ! grep -q "google-cloud-sdk" "$HOME/.bashrc" 2>/dev/null; then
-    info "Adding Google Cloud SDK to PATH in ~/.bashrc..."
-    echo '' >> "$HOME/.bashrc"
-    echo '# Google Cloud SDK' >> "$HOME/.bashrc"
-    echo 'export PATH="/opt/google-cloud-cli/bin:$PATH"' >> "$HOME/.bashrc"
-fi
+# Note: Google Cloud SDK PATH is already configured in ~/.exports.os (dotfiles template)

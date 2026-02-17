@@ -50,8 +50,6 @@ DOTFILES_HOME="$DOTFILES_ROOT/os/$os_name/home"
 mkdir -p "$BACKUP_DIR"
 
 # Symlink all dotfiles (user directory, no sudo needed)
-section "Installing dotfiles"
-$DEBUG && info "Source: $DOTFILES_HOME"
 symlink_all_dotfiles "$DOTFILES_HOME" "$HOME" "$BACKUP_DIR"
 
 $DEBUG && info "Setting up git configuration..."

@@ -48,7 +48,6 @@ export PYTHONIOENCODING='UTF-8'
 paths=(
   "~/.local/bin"
   "~/bin"
-  "~/.local/share/JetBrains/Toolbox/scripts"
 )
 
 # Join paths with colon separator

@@ -95,10 +95,4 @@ if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/
     echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$HOME/.bashrc"
 fi
 
-# Add gcloud to PATH if not already present
-if [[ -f "$HOME/.bashrc" ]] && ! grep -q "google-cloud-sdk" "$HOME/.bashrc" 2>/dev/null; then
-    info "Adding Google Cloud SDK to PATH in ~/.bashrc..."
-    echo '' >> "$HOME/.bashrc"
-    echo '# Google Cloud SDK' >> "$HOME/.bashrc"
-    echo 'export PATH="$HOME/google-cloud-sdk/bin:$PATH"' >> "$HOME/.bashrc"
-fi
+# Note: Google Cloud SDK PATH is already configured in ~/.exports.os (dotfiles template)

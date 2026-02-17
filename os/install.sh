@@ -46,6 +46,23 @@ WINDOWS_SHELL=$(detect_windows_shell)
 info "Installing dotfiles for $OS"
 $DEBUG && info "Location: $DOTFILES_ROOT"
 
+# Request sudo upfront for Linux systems (caches credentials for later use)
+if [[ "$OS" == "omarchy" || "$OS" == "arch" || "$OS" == "cloud-shell" ]]; then
+    if command -v sudo &> /dev/null; then
+        if ! sudo -n true 2>/dev/null; then
+            info "Some operations require sudo privileges"
+            info "Please enter your password to continue..."
+            if ! sudo -v; then
+                error "sudo authentication failed"
+                exit 1
+            fi
+            # Keep sudo alive in the background
+            (while true; do sleep 60; sudo -n true 2>/dev/null || break; done) &
+            SUDO_KEEPALIVE_PID=$!
+        fi
+    fi
+fi
+
 # Function to run OS-specific init
 case "$OS" in
     omarchy|arch)
@@ -81,6 +98,11 @@ if [ -f "$INSTALLER" ]; then
 else
     error "Installer not found at $INSTALLER"
     exit 1
+fi
+
+# Cleanup sudo keepalive process if it was started
+if [[ -n "${SUDO_KEEPALIVE_PID:-}" ]]; then
+    kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
 fi
 
 success "Installation complete! Restart your terminal or run: source ~/.bashrc"

@@ -3,8 +3,18 @@
 # This file is sourced after .exports (shared) and before .exports.local
 # Place Omarchy-specific environment variables here
 
-# Example: Omarchy-specific paths
-# export PATH="$HOME/.local/share/omarchy/bin:$PATH"
-
 # Example: Omarchy-specific environment
 # export OMANCHY_THEME="catppuccin"
+
+# ---------------------------- PATHS ----------------------------
+
+# Extra paths
+# Add to the list below when required
+paths=(
+  "/opt/google-cloud-cli/bin"
+  "~/.local/share/JetBrains/Toolbox/scripts"
+)
+
+# Join paths with colon separator
+joined_paths=$(IFS=:; echo "${paths[*]}")
+export PATH="${joined_paths}:$PATH"

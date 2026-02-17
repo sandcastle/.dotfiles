@@ -26,11 +26,22 @@ install_os_apps() {
             for app_script in "$install_dir"/app-*.sh; do
                 if [[ -f "$app_script" ]]; then
                     local app_name=$(basename "$app_script" | sed 's/app-//;s/\.sh$//')
-                    if bash "$app_script" 2>/dev/null; then
-                        ((installed_count++))
-                        success "$app_name installed"
+                    if [[ "$DEBUG" == true ]]; then
+                        # Show full output when debugging
+                        if bash "$app_script"; then
+                            ((installed_count++))
+                            success "$app_name installed"
+                        else
+                            error "Failed to install $app_name"
+                        fi
                     else
-                        warn "Failed to install $app_name"
+                        # Suppress output normally
+                        if bash "$app_script" 2>/dev/null; then
+                            ((installed_count++))
+                            success "$app_name installed"
+                        else
+                            warn "Failed to install $app_name"
+                        fi
                     fi
                 fi
             done
@@ -69,11 +80,22 @@ install_os_apps() {
             for app_script in "$install_dir"/app-*.sh; do
                 if [[ -f "$app_script" ]]; then
                     local app_name=$(basename "$app_script" | sed 's/app-//;s/\.sh$//')
-                    if bash "$app_script" 2>/dev/null; then
-                        ((installed_count++))
-                        success "$app_name installed"
+                    if [[ "$DEBUG" == true ]]; then
+                        # Show full output when debugging
+                        if bash "$app_script"; then
+                            ((installed_count++))
+                            success "$app_name installed"
+                        else
+                            error "Failed to install $app_name"
+                        fi
                     else
-                        warn "Failed to install $app_name"
+                        # Suppress output normally
+                        if bash "$app_script" 2>/dev/null; then
+                            ((installed_count++))
+                            success "$app_name installed"
+                        else
+                            warn "Failed to install $app_name"
+                        fi
                     fi
                 fi
             done
@@ -128,11 +150,22 @@ install_os_apps() {
                     if [[ -n "$app_name" ]]; then
                         local app_script="$install_dir/app-${app_name}.sh"
                         if [[ -f "$app_script" ]]; then
-                            if bash "$app_script" 2>/dev/null; then
-                                ((installed_count++))
-                                success "$app_name installed"
+                            if [[ "$DEBUG" == true ]]; then
+                                # Show full output when debugging
+                                if bash "$app_script"; then
+                                    ((installed_count++))
+                                    success "$app_name installed"
+                                else
+                                    error "Failed to install $app_name"
+                                fi
                             else
-                                warn "Failed to install $app_name"
+                                # Suppress output normally
+                                if bash "$app_script" 2>/dev/null; then
+                                    ((installed_count++))
+                                    success "$app_name installed"
+                                else
+                                    warn "Failed to install $app_name"
+                                fi
                             fi
                         fi
                     fi

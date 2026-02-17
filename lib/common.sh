@@ -303,9 +303,13 @@ symlink_all_dotfiles() {
     local target_dir="$2"
     local backup_dir="$3"
     
-    section "Installing dotfiles"
-    $DEBUG && info "Source: $source_dir"
-    $DEBUG && info "Backup: $backup_dir"
+    if [[ "$DEBUG" == true ]]; then
+        section "Installing dotfiles"
+        info "Source: $source_dir"
+        info "Backup: $backup_dir"
+    else
+        info "Installing dotfiles..."
+    fi
     
     mkdir -p "$backup_dir"
     
