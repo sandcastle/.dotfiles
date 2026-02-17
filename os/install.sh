@@ -47,8 +47,9 @@ info "Installing dotfiles for $OS"
 $DEBUG && info "Location: $DOTFILES_ROOT"
 
 # Request sudo upfront for Linux systems (caches credentials for later use)
+# Skip if not running interactively (e.g., piped from curl)
 if [[ "$OS" == "omarchy" || "$OS" == "arch" || "$OS" == "cloud-shell" ]]; then
-    if command -v sudo &> /dev/null; then
+    if [[ -t 0 ]] && command -v sudo &> /dev/null; then
         if ! sudo -n true 2>/dev/null; then
             info "Some operations require sudo privileges"
             info "Please enter your password to continue..."

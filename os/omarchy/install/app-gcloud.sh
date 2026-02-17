@@ -20,14 +20,14 @@ if command -v "$BINARY" &> /dev/null; then
     info "$APP_NAME is already installed"
     info "Version: $(${BINARY} --version 2>/dev/null | head -1 || echo 'unknown')"
     
-    # Ensure kubectl is also installed via gcloud
-    if ! $BINARY components list 2>/dev/null | grep -q "kubectl.*Not Installed"; then
+    # Ensure kubectl is also installed via gcloud (quick check)
+    if $BINARY components list --filter="kubectl" --format="value(state.name)" 2>/dev/null | grep -q "Installed"; then
         info "kubectl component already installed"
     else
         info "Installing kubectl component..."
-        $BINARY components install kubectl
+        $BINARY components install kubectl --quiet 2>/dev/null || warn "kubectl component may need manual installation"
     fi
-    exit 0
+    return 0
 fi
 
 info "$APP_NAME - Google Cloud SDK with kubectl"
