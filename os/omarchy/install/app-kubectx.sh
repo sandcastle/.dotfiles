@@ -69,7 +69,7 @@ fi
 
 # Install bash completions
 info "Installing bash completions..."
-mkdir -p "$HOME/.bash_completion.d"
+mkdir -p "$USER_HOME/.bash_completion.d"
 
 # kubectx completions
 if [[ -f "/usr/share/bash-completion/completions/kubectx" ]]; then
@@ -77,7 +77,7 @@ if [[ -f "/usr/share/bash-completion/completions/kubectx" ]]; then
 else
     # Try to get completions from the installed binary
     if kubectx --help 2>/dev/null | grep -q "completion"; then
-        kubectx completion bash > "$HOME/.bash_completion.d/kubectx" 2>/dev/null || true
+        kubectx completion bash > "$USER_HOME/.bash_completion.d/kubectx" 2>/dev/null || true
     fi
 fi
 
@@ -86,7 +86,7 @@ if [[ -f "/usr/share/bash-completion/completions/kubens" ]]; then
     success "kubens completions already available system-wide"
 else
     if kubens --help 2>/dev/null | grep -q "completion"; then
-        kubens completion bash > "$HOME/.bash_completion.d/kubens" 2>/dev/null || true
+        kubens completion bash > "$USER_HOME/.bash_completion.d/kubens" 2>/dev/null || true
     fi
 fi
 

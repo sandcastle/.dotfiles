@@ -30,12 +30,12 @@ case "$ENV" in
         warn "Or use Windows Control Panel to uninstall"
         
         # Remove completions
-        if [[ -L "$HOME/.bash_completion.d/gcloud" ]]; then
-            rm -f "$HOME/.bash_completion.d/gcloud"
+        if [[ -L "$USER_HOME/.bash_completion.d/gcloud" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/gcloud"
         fi
         
-        if [[ -f "$HOME/.bash_completion.d/kubectl" ]]; then
-            rm -f "$HOME/.bash_completion.d/kubectl"
+        if [[ -f "$USER_HOME/.bash_completion.d/kubectl" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/kubectl"
         fi
         
         # Remove PATH entries from .bashrc
@@ -77,12 +77,12 @@ case "$ENV" in
             sudo rm -f /usr/share/google-cloud-sdk/completion.bash.inc
         fi
         
-        if [[ -L "$HOME/.bash_completion.d/gcloud" ]]; then
-            rm -f "$HOME/.bash_completion.d/gcloud"
+        if [[ -L "$USER_HOME/.bash_completion.d/gcloud" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/gcloud"
         fi
         
-        if [[ -f "$HOME/.bash_completion.d/kubectl" ]]; then
-            rm -f "$HOME/.bash_completion.d/kubectl"
+        if [[ -f "$USER_HOME/.bash_completion.d/kubectl" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/kubectl"
         fi
         
         # Remove PATH entries from .bashrc

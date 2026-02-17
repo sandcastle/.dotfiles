@@ -33,11 +33,11 @@ fi
 
 # Ensure bash completions are loaded in .bashrc
 if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash-completion/bash_completion" "$HOME/.bashrc" 2>/dev/null; then
-    echo '' >> "$HOME/.bashrc"
-    echo '# Load bash completions for git and other tools' >> "$HOME/.bashrc"
-    echo 'if [ -f /usr/share/bash-completion/bash_completion ]; then' >> "$HOME/.bashrc"
-    echo '    . /usr/share/bash-completion/bash_completion' >> "$HOME/.bashrc"
-    echo 'elif [ -f /etc/bash_completion ]; then' >> "$HOME/.bashrc"
-    echo '    . /etc/bash_completion' >> "$HOME/.bashrc"
-    echo 'fi' >> "$HOME/.bashrc"
+    echo '' >> "$USER_HOME/.bashrc"
+    echo '# Load bash completions for git and other tools' >> "$USER_HOME/.bashrc"
+    echo 'if [ -f /usr/share/bash-completion/bash_completion ]; then' >> "$USER_HOME/.bashrc"
+    echo '    . /usr/share/bash-completion/bash_completion' >> "$USER_HOME/.bashrc"
+    echo 'elif [ -f /etc/bash_completion ]; then' >> "$USER_HOME/.bashrc"
+    echo '    . /etc/bash_completion' >> "$USER_HOME/.bashrc"
+    echo 'fi' >> "$USER_HOME/.bashrc"
 fi

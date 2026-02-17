@@ -47,24 +47,24 @@ fi
 
 # Install bash completions
 info "Installing bash completions..."
-mkdir -p "$HOME/.bash_completion.d"
+mkdir -p "$USER_HOME/.bash_completion.d"
 
 # Homebrew installs completions automatically, but link them if needed
 if [[ -f "$(brew --prefix)/etc/bash_completion.d/kubectx" ]]; then
-    ln -sf "$(brew --prefix)/etc/bash_completion.d/kubectx" "$HOME/.bash_completion.d/kubectx"
+    ln -sf "$(brew --prefix)/etc/bash_completion.d/kubectx" "$USER_HOME/.bash_completion.d/kubectx"
     success "kubectx completions linked"
 fi
 
 if [[ -f "$(brew --prefix)/etc/bash_completion.d/kubens" ]]; then
-    ln -sf "$(brew --prefix)/etc/bash_completion.d/kubens" "$HOME/.bash_completion.d/kubens"
+    ln -sf "$(brew --prefix)/etc/bash_completion.d/kubens" "$USER_HOME/.bash_completion.d/kubens"
     success "kubens completions linked"
 fi
 
 # Ensure completion loader is in .bashrc
 if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/dev/null; then
-    echo '' >> "$HOME/.bashrc"
-    echo '# Source bash completions' >> "$HOME/.bashrc"
-    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$HOME/.bashrc"
+    echo '' >> "$USER_HOME/.bashrc"
+    echo '# Source bash completions' >> "$USER_HOME/.bashrc"
+    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$USER_HOME/.bashrc"
 fi
 
 success "Completions installed"

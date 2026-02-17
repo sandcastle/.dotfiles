@@ -37,13 +37,13 @@ fi
 
 # Add activation to shell rc file if not already present
 if [[ -f "$HOME/.bashrc" ]] && ! grep -q "mise activate" "$HOME/.bashrc" 2>/dev/null; then
-    echo '' >> "$HOME/.bashrc"
-    echo '# Activate mise (development environment manager)' >> "$HOME/.bashrc"
-    echo 'eval "$(~/.local/bin/mise activate bash)"' >> "$HOME/.bashrc"
+    echo '' >> "$USER_HOME/.bashrc"
+    echo '# Activate mise (development environment manager)' >> "$USER_HOME/.bashrc"
+    echo 'eval "$(~/.local/bin/mise activate bash)"' >> "$USER_HOME/.bashrc"
 fi
 
 # Install bash completions
-mkdir -p "$HOME/.bash_completion.d"
-if [[ ! -f "$HOME/.bash_completion.d/mise" ]]; then
-    $BINARY completion bash > "$HOME/.bash_completion.d/mise"
+mkdir -p "$USER_HOME/.bash_completion.d"
+if [[ ! -f "$USER_HOME/.bash_completion.d/mise" ]]; then
+    $BINARY completion bash > "$USER_HOME/.bash_completion.d/mise"
 fi

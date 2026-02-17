@@ -106,15 +106,15 @@ if [[ -d "/usr/share/bash-completion/completions" ]]; then
     fi
 else
     # User-local
-    mkdir -p "$HOME/.bash_completion.d"
+    mkdir -p "$USER_HOME/.bash_completion.d"
     
     if [[ -f "/opt/google-cloud-cli/completion.bash.inc" ]]; then
-        ln -sf /opt/google-cloud-cli/completion.bash.inc "$HOME/.bash_completion.d/gcloud"
+        ln -sf /opt/google-cloud-cli/completion.bash.inc "$USER_HOME/.bash_completion.d/gcloud"
         success "gcloud completions installed to ~/.bash_completion.d"
     fi
     
     if command -v kubectl &> /dev/null; then
-        kubectl completion bash > "$HOME/.bash_completion.d/kubectl"
+        kubectl completion bash > "$USER_HOME/.bash_completion.d/kubectl"
         success "kubectl completions installed to ~/.bash_completion.d"
     fi
 fi

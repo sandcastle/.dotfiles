@@ -27,8 +27,8 @@ case "$ENV" in
         warn "Run: winget uninstall GitHub.cli"
         
         # Remove completions
-        if [[ -L "$HOME/.bash_completion.d/gh" ]]; then
-            rm -f "$HOME/.bash_completion.d/gh"
+        if [[ -L "$USER_HOME/.bash_completion.d/gh" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/gh"
         fi
         ;;
     wsl)
@@ -60,8 +60,8 @@ case "$ENV" in
         fi
         
         # Remove completions
-        if [[ -f "$HOME/.bash_completion.d/gh" ]]; then
-            rm -f "$HOME/.bash_completion.d/gh"
+        if [[ -f "$USER_HOME/.bash_completion.d/gh" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/gh"
         fi
         ;;
     *)

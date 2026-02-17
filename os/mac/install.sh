@@ -44,7 +44,7 @@ $DEBUG && info "Backup: $BACKUP_DIR"
 DOTFILES_HOME="$DOTFILES_ROOT/os/$os_name/home"
 
 # Symlink all dotfiles (no sudo needed on macOS)
-symlink_all_dotfiles "$DOTFILES_HOME" "$HOME" "$BACKUP_DIR"
+symlink_all_dotfiles "$DOTFILES_HOME" "$USER_HOME" "$BACKUP_DIR"
 
 $DEBUG && info "Setting up git configuration..."
 setup_git_user_config || warn "Git user config setup skipped or failed"

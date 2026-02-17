@@ -29,7 +29,7 @@ fi
 
 # Remove completions
 info "Removing bash completions..."
-rm -f "$HOME/.bash_completion.d/kubectx"
-rm -f "$HOME/.bash_completion.d/kubens"
+rm -f "$USER_HOME/.bash_completion.d/kubectx"
+rm -f "$USER_HOME/.bash_completion.d/kubens"
 
 success "$APP_NAME uninstalled successfully from $OS_NAME!"

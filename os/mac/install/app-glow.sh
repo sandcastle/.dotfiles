@@ -47,15 +47,15 @@ fi
 
 # Install bash completions
 info "Installing bash completions for glow..."
-mkdir -p "$HOME/.bash_completion.d"
+mkdir -p "$USER_HOME/.bash_completion.d"
 if $BINARY completion bash &>/dev/null; then
-    $BINARY completion bash > "$HOME/.bash_completion.d/glow"
+    $BINARY completion bash > "$USER_HOME/.bash_completion.d/glow"
     success "Completions installed to ~/.bash_completion.d/glow"
 fi
 
 # Ensure completion loader is in .bashrc
 if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/dev/null; then
-    echo '' >> "$HOME/.bashrc"
-    echo '# Source bash completions' >> "$HOME/.bashrc"
-    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$HOME/.bashrc"
+    echo '' >> "$USER_HOME/.bashrc"
+    echo '# Source bash completions' >> "$USER_HOME/.bashrc"
+    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$USER_HOME/.bashrc"
 fi

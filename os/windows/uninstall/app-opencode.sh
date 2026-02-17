@@ -49,8 +49,8 @@ case "$ENV" in
         fi
         
         # Remove completions
-        if [[ -f "$HOME/.bash_completion.d/opencode" ]]; then
-            rm -f "$HOME/.bash_completion.d/opencode"
+        if [[ -f "$USER_HOME/.bash_completion.d/opencode" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/opencode"
         fi
         ;;
     *)

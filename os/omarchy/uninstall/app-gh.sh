@@ -52,8 +52,8 @@ if [[ -f "/etc/bash_completion.d/gh" ]]; then
     sudo rm -f /etc/bash_completion.d/gh
 fi
 
-if [[ -f "$HOME/.bash_completion.d/gh" ]]; then
-    rm -f "$HOME/.bash_completion.d/gh"
+if [[ -f "$USER_HOME/.bash_completion.d/gh" ]]; then
+    rm -f "$USER_HOME/.bash_completion.d/gh"
 fi
 
 # Remove PATH entries from .bashrc (if any gh-specific entries)

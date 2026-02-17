@@ -16,7 +16,19 @@ set -e
 # Configuration
 # ============================================================================
 
-DOTFILES_ROOT="${DOTFILES_ROOT:-$HOME/.dotfiles}"
+# Detect the correct home directory (handle sudo case)
+get_user_home() {
+    if [[ -n "${SUDO_USER:-}" ]]; then
+        # Running with sudo - use the original user's home
+        eval echo "~$SUDO_USER"
+    else
+        # Normal case - use current user's home
+        echo "$HOME"
+    fi
+}
+
+USER_HOME=$(get_user_home)
+DOTFILES_ROOT="${DOTFILES_ROOT:-$USER_HOME/.dotfiles}"
 DEBUG=${DEBUG:-false}
 
 # Load theme configuration
@@ -233,7 +245,7 @@ check_file_exists() {
 # Create timestamped backup directory
 get_backup_dir() {
     local os_name="$1"
-    echo "$HOME/.backup/$(date +%Y%m%d_%H%M%S)_${os_name}"
+    echo "$USER_HOME/.backup/$(date +%Y%m%d_%H%M%S)_${os_name}"
 }
 
 # Backup a file before overwriting
@@ -596,7 +608,7 @@ remove_app_config() {
 # Setup git user configuration (creates ~/.gitconfig.user)
 # This keeps PII (name, email) out of the dotfiles repo
 setup_git_user_config() {
-    local gitconfig_user="$HOME/.gitconfig.user"
+    local gitconfig_user="$USER_HOME/.gitconfig.user"
     
     # Check if user config already exists
     if [ -f "$gitconfig_user" ]; then

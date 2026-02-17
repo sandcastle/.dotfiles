@@ -65,22 +65,22 @@ fi
 
 # Install bash completions
 info "Installing bash completions..."
-mkdir -p "$HOME/.bash_completion.d"
+mkdir -p "$USER_HOME/.bash_completion.d"
 
 # Try to get completions from the installed binary
 if kubectx --help 2>/dev/null | grep -q "completion"; then
-    kubectx completion bash > "$HOME/.bash_completion.d/kubectx" 2>/dev/null || true
+    kubectx completion bash > "$USER_HOME/.bash_completion.d/kubectx" 2>/dev/null || true
 fi
 
 if kubens --help 2>/dev/null | grep -q "completion"; then
-    kubens completion bash > "$HOME/.bash_completion.d/kubens" 2>/dev/null || true
+    kubens completion bash > "$USER_HOME/.bash_completion.d/kubens" 2>/dev/null || true
 fi
 
 # Ensure completion loader is in .bashrc
 if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/dev/null; then
-    echo '' >> "$HOME/.bashrc"
-    echo '# Source bash completions' >> "$HOME/.bashrc"
-    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$HOME/.bashrc"
+    echo '' >> "$USER_HOME/.bashrc"
+    echo '# Source bash completions' >> "$USER_HOME/.bashrc"
+    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$USER_HOME/.bashrc"
 fi
 
 success "Completions installed"

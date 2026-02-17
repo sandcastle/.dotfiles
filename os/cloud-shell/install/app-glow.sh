@@ -54,17 +54,17 @@ fi
 
 # Install bash completions
 info "Installing bash completions..."
-mkdir -p "$HOME/.bash_completion.d"
+mkdir -p "$USER_HOME/.bash_completion.d"
 
 if glow --help 2>/dev/null | grep -q "completion"; then
-    glow completion bash > "$HOME/.bash_completion.d/glow" 2>/dev/null || warn "Could not generate completions"
+    glow completion bash > "$USER_HOME/.bash_completion.d/glow" 2>/dev/null || warn "Could not generate completions"
 fi
 
 # Ensure completion loader is in .bashrc
 if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/dev/null; then
-    echo '' >> "$HOME/.bashrc"
-    echo '# Source bash completions' >> "$HOME/.bashrc"
-    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$HOME/.bashrc"
+    echo '' >> "$USER_HOME/.bashrc"
+    echo '# Source bash completions' >> "$USER_HOME/.bashrc"
+    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$USER_HOME/.bashrc"
 fi
 
 success "Completions installed"

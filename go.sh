@@ -10,7 +10,17 @@
 set -e
 
 DOTFILES_REPO="https://github.com/sandcastle/.dotfiles.git"
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+
+# Detect the correct home directory (handle sudo case)
+if [[ -n "${SUDO_USER:-}" ]]; then
+    # Running with sudo - use the original user's home
+    USER_HOME=$(eval echo "~$SUDO_USER")
+else
+    # Normal case - use current user's home
+    USER_HOME="$HOME"
+fi
+
+DOTFILES_DIR="${DOTFILES_DIR:-$USER_HOME/.dotfiles}"
 
 # Parse arguments
 INSTALL_ONLY=false

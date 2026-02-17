@@ -74,25 +74,25 @@ fi
 
 # Install bash completions
 info "Installing bash completions..."
-mkdir -p "$HOME/.bash_completion.d"
+mkdir -p "$USER_HOME/.bash_completion.d"
 
 # gcloud completions
 if [[ -f "$HOME/google-cloud-sdk/completion.bash.inc" ]]; then
-    ln -sf "$HOME/google-cloud-sdk/completion.bash.inc" "$HOME/.bash_completion.d/gcloud"
+    ln -sf "$HOME/google-cloud-sdk/completion.bash.inc" "$USER_HOME/.bash_completion.d/gcloud"
     success "gcloud completions installed"
 fi
 
 # kubectl completion
 if command -v kubectl &> /dev/null; then
-    kubectl completion bash > "$HOME/.bash_completion.d/kubectl"
+    kubectl completion bash > "$USER_HOME/.bash_completion.d/kubectl"
     success "kubectl completions installed"
 fi
 
 # Ensure completion loader is in .bashrc
 if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/dev/null; then
-    echo '' >> "$HOME/.bashrc"
-    echo '# Source bash completions' >> "$HOME/.bashrc"
-    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$HOME/.bashrc"
+    echo '' >> "$USER_HOME/.bashrc"
+    echo '# Source bash completions' >> "$USER_HOME/.bashrc"
+    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$USER_HOME/.bashrc"
 fi
 
 # Note: Google Cloud SDK PATH is already configured in ~/.exports.os (dotfiles template)

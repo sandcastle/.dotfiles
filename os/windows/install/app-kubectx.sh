@@ -83,14 +83,14 @@ case "$ENV" in
         
         # Install bash completions for WSL
         info "Installing bash completions..."
-        mkdir -p "$HOME/.bash_completion.d"
+        mkdir -p "$USER_HOME/.bash_completion.d"
         
         if kubectx --help 2>/dev/null | grep -q "completion"; then
-            kubectx completion bash > "$HOME/.bash_completion.d/kubectx" 2>/dev/null || true
+            kubectx completion bash > "$USER_HOME/.bash_completion.d/kubectx" 2>/dev/null || true
         fi
         
         if kubens --help 2>/dev/null | grep -q "completion"; then
-            kubens completion bash > "$HOME/.bash_completion.d/kubens" 2>/dev/null || true
+            kubens completion bash > "$USER_HOME/.bash_completion.d/kubens" 2>/dev/null || true
         fi
         ;;
     *)
@@ -116,7 +116,7 @@ if command -v kubectx &> /dev/null && command -v kubens &> /dev/null; then
         info ""
         info "Note: Ensure ~/bin is in your PATH"
         if [[ -f "$HOME/.bashrc" ]] && ! grep -q 'export PATH="$HOME/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null; then
-            echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
+            echo 'export PATH="$HOME/bin:$PATH"' >> "$USER_HOME/.bashrc"
             info "Added ~/bin to PATH in ~/.bashrc"
         fi
     fi

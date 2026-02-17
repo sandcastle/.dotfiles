@@ -41,8 +41,8 @@ if [[ -f "/etc/bash_completion.d/glow" ]]; then
     sudo rm -f /etc/bash_completion.d/glow
 fi
 
-if [[ -f "$HOME/.bash_completion.d/glow" ]]; then
-    rm -f "$HOME/.bash_completion.d/glow"
+if [[ -f "$USER_HOME/.bash_completion.d/glow" ]]; then
+    rm -f "$USER_HOME/.bash_completion.d/glow"
 fi
 
 success "$APP_NAME uninstalled successfully!"

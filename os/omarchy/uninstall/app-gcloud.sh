@@ -50,16 +50,16 @@ if [[ -L "/usr/share/bash-completion/completions/gcloud" ]]; then
     sudo rm -f /usr/share/bash-completion/completions/gcloud
 fi
 
-if [[ -f "$HOME/.bash_completion.d/gcloud" ]]; then
-    rm -f "$HOME/.bash_completion.d/gcloud"
+if [[ -f "$USER_HOME/.bash_completion.d/gcloud" ]]; then
+    rm -f "$USER_HOME/.bash_completion.d/gcloud"
 fi
 
 if [[ -L "/usr/share/bash-completion/completions/kubectl" ]]; then
     sudo rm -f /usr/share/bash-completion/completions/kubectl
 fi
 
-if [[ -f "$HOME/.bash_completion.d/kubectl" ]]; then
-    rm -f "$HOME/.bash_completion.d/kubectl"
+if [[ -f "$USER_HOME/.bash_completion.d/kubectl" ]]; then
+    rm -f "$USER_HOME/.bash_completion.d/kubectl"
 fi
 
 # Remove PATH entries from .bashrc

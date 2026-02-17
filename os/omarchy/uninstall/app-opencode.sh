@@ -49,8 +49,8 @@ if [ "$1" = "--purge" ]; then
 fi
 
 # Remove completions
-if [[ -f "$HOME/.bash_completion.d/opencode" ]]; then
-    rm -f "$HOME/.bash_completion.d/opencode"
+if [[ -f "$USER_HOME/.bash_completion.d/opencode" ]]; then
+    rm -f "$USER_HOME/.bash_completion.d/opencode"
 fi
 
 # Remove from PATH in .bashrc (but keep the .local/bin entry as it may be used by other tools)

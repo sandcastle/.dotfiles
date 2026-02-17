@@ -27,8 +27,8 @@ case "$ENV" in
         warn "Run: winget uninstall Charmbracelet.Glow"
         
         # Remove completions
-        if [[ -L "$HOME/.bash_completion.d/glow" ]]; then
-            rm -f "$HOME/.bash_completion.d/glow"
+        if [[ -L "$USER_HOME/.bash_completion.d/glow" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/glow"
         fi
         ;;
     wsl)
@@ -61,8 +61,8 @@ case "$ENV" in
             sudo rm -f /usr/share/glow/completion.bash.inc
         fi
         
-        if [[ -L "$HOME/.bash_completion.d/glow" ]]; then
-            rm -f "$HOME/.bash_completion.d/glow"
+        if [[ -L "$USER_HOME/.bash_completion.d/glow" ]]; then
+            rm -f "$USER_HOME/.bash_completion.d/glow"
         fi
         ;;
     *)

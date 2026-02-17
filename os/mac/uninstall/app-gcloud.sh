@@ -40,12 +40,12 @@ if [ "$1" = "--purge" ]; then
 fi
 
 # Remove completions
-if [[ -L "$HOME/.bash_completion.d/gcloud" ]]; then
-    rm -f "$HOME/.bash_completion.d/gcloud"
+if [[ -L "$USER_HOME/.bash_completion.d/gcloud" ]]; then
+    rm -f "$USER_HOME/.bash_completion.d/gcloud"
 fi
 
-if [[ -f "$HOME/.bash_completion.d/kubectl" ]]; then
-    rm -f "$HOME/.bash_completion.d/kubectl"
+if [[ -f "$USER_HOME/.bash_completion.d/kubectl" ]]; then
+    rm -f "$USER_HOME/.bash_completion.d/kubectl"
 fi
 
 # Remove PATH entries from .bashrc
