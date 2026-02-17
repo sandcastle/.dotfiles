@@ -1,0 +1,303 @@
+# ------------------------------ SHORTCUTS -------------------------------
+
+alias work="cd ~/Work"
+alias desk="cd ~/Desktop"
+
+# Enable aliases to be sudo'ed
+alias sudo='sudo '
+alias _='sudo'
+
+# Get week number
+alias week='date +%V'
+
+# ------------------------------ SYSTEM -------------------------------
+
+# Shortcut for common tools
+alias n='nvim'
+alias a='alacritty'
+
+# Reload the shell (i.e. invoke as a login shell)
+alias reload="exec ${SHELL} -l"
+
+# ----------------------------- SHELL ------------------------------
+
+# Easier navigation: .., ..., ~ and -
+alias ..="cd .."
+alias cd..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ~="cd ~"
+
+# Simple clear command
+alias cl='clear'
+alias cls='clear'
+
+# save the keys
+alias chmox='chmod -x'
+
+# easy to forget
+alias where=which
+
+# Case-insensitive pgrep that outputs full path.
+alias pgrep='pgrep -fli'
+
+# Print the path
+alias path='echo $PATH | tr ":" "\n"'
+
+# Lists the ten most used commands.
+alias history-stat="history 0 | awk '{print \$2}' | sort | uniq -c | sort -n -r | head"
+
+alias cp="${aliases[cp]:-cp} -i"
+alias ln="${aliases[ln]:-ln} -i"
+alias mkdir="${aliases[mkdir]:-mkdir} -p"
+alias mv="${aliases[mv]:-mv} -i"
+alias po='popd'
+alias pu='pushd'
+alias type='type -a'
+
+# ------------------------------ GIT -------------------------------
+
+alias g='git'
+alias ga='git add'
+alias gc='git commit'
+alias gco='git checkout'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git log --oneline'
+alias glo='git log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit'
+alias gst='git status'
+alias gf='git fetch'
+alias gb='git branch'
+
+# git config alises
+alias gup='git up'
+alias gdown='git down'
+alias gfeat='git feat'
+alias gfix='git fix'
+alias gu='git undo'
+alias gs='git save'
+
+
+# ------------------------------ LAZY -------------------------------
+
+alias lazg='lazygit'
+
+# ------------------------------ NETWORK -------------------------------
+
+# Get my public IP address
+alias myip='curl -s ifconfig.me'
+
+# Edit the hosts file
+alias hosts='sudo $EDITOR /etc/hosts'
+
+# List all ports in use
+alias ports='lsof -i -P -n | grep LISTEN'
+
+# ------------------------------ DOTFILES -------------------------------
+
+# Commonly used directories.
+alias dot='cd $DOTFILES_HOME'
+alias dev='cd $DEV_HOME'
+alias me='cd $DEV_ME'
+alias tmp='cd $DEV_TMP'
+alias work='cd $DEV_WORK'
+alias dotfiles-update='curl -s "https://raw.githubusercontent.com/sandcastle/dotfiles/master/install.sh?t=$(date +%s%N)" | bash'
+
+# ------------------------------ MODERN -------------------------------
+
+# list
+if command -v eza >/dev/null 2>&1; then
+  # eza: Modern, colorized ls replacement with better defaults
+  alias l='eza -lA --color=auto --group-directories-first --no-time --no-filesize --no-permissions --no-user'
+  alias ls='eza -A --classify=auto --color=auto --group-directories-first'
+  alias ll='eza -l --classify=auto --color=auto --group-directories-first --sort=extension --octal-permissions --no-permissions'
+  alias la='eza -la --classify=auto --color=auto --group-directories-first --sort=extension --octal-permissions --no-permissions'
+  alias lg='eza -la --classify=auto --color=auto --group-directories-first --sort=extension --octal-permissions --no-permissions --git'
+  alias lt='eza -la --classify=auto --color=auto --group-directories-first --sort=modified --octal-permissions --no-permissions --git'
+  alias lz='eza -la --classify=auto --color=auto --group-directories-first --sort=size --octal-permissions --no-permissions --git'
+  alias tree='eza --tree'
+else
+  alias l='ls -1A'         # Lists in one column, hidden files.
+  alias ll='ls -lh'        # Lists human readable sizes.
+  alias lr='ll -R'         # Lists human readable sizes, recursively.
+  alias la='ll -A'         # Lists human readable sizes, hidden files.
+  alias lm='la | "$PAGER"' # Lists human readable sizes, hidden files through pager.
+  alias lx='ll -XB'        # Lists sorted by extension (GNU only).
+  alias lk='ll -Sr'        # Lists sorted by size, largest last.
+  alias lt='ll -tr'        # Lists sorted by date, most recent last.
+  alias lc='lt -c'         # Lists sorted by date, most recent last, shows change time.
+  alias lu='lt -u'         # Lists sorted by date, most recent last, shows access time.
+fi
+
+# Disk Usage (Human Readable)
+if command -v duf >/dev/null 2>&1; then
+  # duf: Better disk usage/free utility with colorful graphs
+  alias df='duf'
+else
+  alias df='df -kh'
+fi
+
+if command -v dust >/dev/null 2>&1; then
+  # dust: More intuitive version of du with colored output
+  alias du='dust'
+else
+  alias du='du -kh'
+fi
+
+# Helper function to detect if running in VSCode or Cursor
+is_agent_context() {
+  # Multiple detection methods for Cursor context
+  # 1. Check if its vscode or cursor (both have the same TERM_PROGRAM)
+  # 2. Check if this is being executed from a non-interactive shell (common in agents)
+  if [ "$TERM_PROGRAM" = "vscode" ] && [ -z "$PS1" ]; then
+    return 0 # true in shell logic
+  else
+    return 1 # false in shell logic
+  fi
+}
+
+if command -v bat >/dev/null 2>&1; then
+  # bat: cat clone with syntax highlighting and Git integration
+  # Smart wrapper that disables paging when called from VSCode/Cursor
+  bat_wrapper() {
+    if is_agent_context; then
+      # Dont use paging or style this can break AI agents
+      bat --paging=never --style=plain "$@"
+    else
+      bat "$@" # Default behavior with auto paging, which is interactive
+    fi
+  }
+  alias cat='bat_wrapper'
+fi
+
+if command -v procs >/dev/null 2>&1; then
+  # procs: Modern replacement for ps with additional features
+  alias ps='procs'
+fi
+
+if command -v gping >/dev/null 2>&1; then
+  # gping: Ping with a graphical display
+  alias ping='gping'
+fi
+
+# ------------------------------ DEV -------------------------------
+
+# Canonical hex dump; some systems have this symlinked
+command -v hd >/dev/null || alias hd="hexdump -C"
+
+# macOS has no `md5sum`, so use `md5` as a fallback
+command -v md5sum >/dev/null || alias md5sum="md5"
+
+# macOS has no `sha1sum`, so use `shasum` as a fallback
+command -v sha1sum >/dev/null || alias sha1sum="shasum"
+
+# turbo repo
+alias t='turbo'
+
+# Terraform shortcuts
+alias tf='terraform'
+alias tfi='terraform init'
+alias tfv='terraform validate'
+alias tfp='terraform plan'
+alias tfs='terraform show'
+
+# Common project scripts - used on all project irrespective of lang
+alias sc='sh script/clean'   # clean the application
+alias si='sh script/install' # install packages/dependencies
+alias su='sh script/update'  # update packages/dependencies
+alias sl='sh script/lint'    # lint the application
+alias st='sh script/test'    # test the application
+alias sb='sh script/build'   # build the application
+alias ss='sh script/start'   # run the application
+alias sf='sh script/format'  # format the code
+alias sp='sh script/package' # package the application
+alias s!='aliases | grep script/'
+
+# yarn shortcuts
+alias y='yarn'
+alias yc='yarn clean'
+alias yi='yarn init'
+alias yl='yarn lint'
+alias ylf='yarn lint -- --fix'
+alias yu='yarn install'
+alias yb='yarn build'
+alias yt='yarn test'
+alias ys='yarn start'
+alias yyb='yarn && yarn build'
+alias y!='aliases | grep yarn'
+
+# pnpm shortcuts
+alias pp='pnpm'
+alias ppa='pnpm add'
+alias ppi='pnpm install'
+alias ppu='pnpm update -i'
+alias ppuu='pnpm up -i --latest --recursive'
+alias ppd='pnpm dev'
+alias ppr='pnpm remove'
+alias ppx='pnpm exec'
+alias ppb='pnpm build'
+alias ppt='pnpm test'
+alias pps='pnpm start'
+alias ppl='pnpm lint'
+alias pplf='pnpm lint --fix'
+alias ppib='pnpm install && pnpm build'
+alias ppc='pnpm clean'
+alias pp!='aliases | grep pnpm'
+
+# dotnet shortcuts
+alias doti='dotnet --info'
+alias dotr='dotnet restore'
+alias dotc='dotnet clean'
+alias dotn='dotnet new'
+alias dotb='dotnet build'
+alias dott='dotnet test'
+alias dots='dotnet run'
+alias dotu='dotnet update'
+alias dot!='aliases | grep dotnet'
+
+# Lines of Code counter
+alias lines='git ls-files | xargs cloc'
+
+# Pretty print json
+alias json='python -m json.tool'
+
+# Docker aliases
+alias dk='docker'
+alias dkc='docker-compose'
+alias dkps='docker ps'
+alias dki='docker images'
+
+# --------------------------- NETWORK ------------------------------
+
+# Serves a directory via HTTP
+alias http-serve='python -m http.server'
+
+# Disable certificate check for wget.
+alias wget='wget --no-check-certificate'
+
+# Checks whether connection is up.
+alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'"
+
+# Download (Show progress)
+alias get='curl --continue-at - --location --progress-bar --remote-name --remote-time'
+
+# Time connection
+alias http-time='curl -o /dev/null -s -w "Establish Connection: %{time_connect}s\nTTFB: %{time_starttransfer}s\nTotal: %{time_total}s\n"'
+
+# --------------------------- KUBERNETES ----------------------------
+
+alias k='kubectl'
+alias kube='k'
+alias kx='kubectx'
+alias kn='kubens'
+alias kubeproxy='kube proxy &'
+
+# ------------------------------ AI -------------------------------
+
+alias gemini="npx -y @google/gemini-cli"
+alias g="gemini"
+
+alias oc="opencode"
+alias c="code"
+alias cl="claude"

@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Install Google Cloud CLI (gcloud) with kubectl
+# https://cloud.google.com/sdk/docs/install-sdk#mac
+#
+# Also installs: kubectl (via gcloud components)
+
+set -e
+
+DOTFILES_ROOT="$(cd "$(dirname "$0")/../../../" && pwd)"
+source "$DOTFILES_ROOT/lib/common.sh"
+
+APP_NAME="Google Cloud CLI"
+BINARY="gcloud"
+
+info "Installing $APP_NAME..."
+
+# Check if already installed
+if command -v "$BINARY" &> /dev/null; then
+    info "$APP_NAME is already installed"
+    info "Version: $(${BINARY} --version 2>/dev/null | head -1 || echo 'unknown')"
+    
+    # Ensure kubectl is also installed via gcloud
+    if ! $BINARY components list 2>/dev/null | grep -q "kubectl.*Not Installed"; then
+        info "kubectl component already installed"
+    else
+        info "Installing kubectl component..."
+        $BINARY components install kubectl
+    fi
+    exit 0
+fi
+
+info "$APP_NAME - Google Cloud SDK with kubectl"
+info "Website: https://cloud.google.com/sdk"
+
+# Install via Homebrew Cask
+info "Installing via Homebrew..."
+brew install --cask google-cloud-sdk
+
+# Install gcloud components
+info "Installing gcloud components..."
+$BINARY components install kubectl --quiet 2>/dev/null || warn "kubectl component install may require additional setup"
+$BINARY components install cloud_sql_proxy --quiet 2>/dev/null || warn "cloud_sql_proxy component install may require additional setup"
+$BINARY components install gke-gcloud-auth-plugin --quiet 2>/dev/null || warn "gke-gcloud-auth-plugin component install may require additional setup"
+$BINARY components install docker-credential-gcr --quiet 2>/dev/null || warn "docker-credential-gcr component install may require additional setup"
+
+# Verify installations
+if command -v "$BINARY" &> /dev/null; then
+    success "$APP_NAME installed successfully!"
+    info "Version: $(${BINARY} --version 2>/dev/null | head -1)"
+    
+    # Check installed components
+    if command -v kubectl &> /dev/null; then
+        info "  kubectl: $(kubectl version --client 2>/dev/null | head -1 || echo 'installed')"
+    fi
+    if command -v cloud_sql_proxy &> /dev/null; then
+        info "  cloud_sql_proxy: installed"
+    fi
+    if command -v docker-credential-gcr &> /dev/null; then
+        info "  docker-credential-gcr: installed"
+    fi
+    if command -v gke-gcloud-auth-plugin &> /dev/null; then
+        info "  gke-gcloud-auth-plugin: installed"
+    fi
+    
+    info ""
+    info "Next steps:"
+    info "  1. Run 'gcloud init' to authenticate"
+    info "  2. Run 'gcloud config set project YOUR_PROJECT_ID'"
+else
+    error "$APP_NAME installation failed"
+    info "For manual installation: https://cloud.google.com/sdk/docs/install-sdk"
+    exit 1
+fi
+
+# Install bash completions
+info "Installing bash completions..."
+mkdir -p "$HOME/.bash_completion.d"
+
+# gcloud completions
+if [[ -f "$HOME/google-cloud-sdk/completion.bash.inc" ]]; then
+    ln -sf "$HOME/google-cloud-sdk/completion.bash.inc" "$HOME/.bash_completion.d/gcloud"
+    success "gcloud completions installed"
+fi
+
+# kubectl completion
+if command -v kubectl &> /dev/null; then
+    kubectl completion bash > "$HOME/.bash_completion.d/kubectl"
+    success "kubectl completions installed"
+fi
+
+# Ensure completion loader is in .bashrc
+if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/dev/null; then
+    echo '' >> "$HOME/.bashrc"
+    echo '# Source bash completions' >> "$HOME/.bashrc"
+    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$HOME/.bashrc"
+fi
+
+# Add gcloud to PATH if not already present
+if [[ -f "$HOME/.bashrc" ]] && ! grep -q "google-cloud-sdk" "$HOME/.bashrc" 2>/dev/null; then
+    info "Adding Google Cloud SDK to PATH in ~/.bashrc..."
+    echo '' >> "$HOME/.bashrc"
+    echo '# Google Cloud SDK' >> "$HOME/.bashrc"
+    echo 'export PATH="$HOME/google-cloud-sdk/bin:$PATH"' >> "$HOME/.bashrc"
+fi

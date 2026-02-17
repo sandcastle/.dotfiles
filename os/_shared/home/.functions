@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+# apps - Manage application installation across all OSes
+# Usage: apps install <app-name>
+#        apps uninstall <app-name>
+#        apps list
+#
+
+DOTFILES_ROOT="${DOTFILES_ROOT:-$HOME/.dotfiles}"
+
+# Source common functions for pretty output
+if [ -f "$DOTFILES_ROOT/lib/theme.sh" ]; then
+    source "$DOTFILES_ROOT/lib/theme.sh"
+fi
+
+# Pretty output functions (standalone version)
+_header() {
+    echo ""
+    echo -e "\033[1m\033[38;5;${THEME_PRIMARY:-212}m══════════════════════════════════════════════════════════════\033[0m"
+    echo -e "\033[1m\033[38;5;${THEME_PRIMARY:-212}m  ${1}\033[0m"
+    echo -e "\033[1m\033[38;5;${THEME_PRIMARY:-212}m══════════════════════════════════════════════════════════════\033[0m"
+    echo ""
+}
+
+_success() {
+    echo -e "\033[38;5;${THEME_SUCCESS:-46}m✓ ${1}\033[0m"
+}
+
+_error() {
+    echo -e "\033[38;5;${THEME_ERROR:-196}m✗ ${1}\033[0m" >&2
+}
+
+_info() {
+    echo -e "\033[38;5;${THEME_INFO:-240}m• ${1}\033[0m"
+}
+
+_detect_os() {
+    if [ -f /etc/arch-release ] && [ -d "$HOME/.local/share/omarchy" ]; then
+        echo "omarchy"
+    elif [ -f /etc/arch-release ]; then
+        echo "arch"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "mac"
+    elif [ -n "$CLOUD_SHELL" ] || [ -n "$DEVSHELL_PROJECT_ID" ]; then
+        echo "cloud-shell"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == mingw* ]]; then
+        echo "windows"
+    elif [ -f /proc/version ] && grep -q Microsoft /proc/version; then
+        echo "wsl"
+    else
+        echo "unknown"
+    fi
+}
+
+_list_apps() {
+    local base_dir="$1"
+    local os_name="$2"
+    
+    local install_dir="$base_dir/install"
+    
+    if [ -d "$install_dir" ]; then
+        local apps=$(ls "$install_dir"/app-*.sh 2>/dev/null | xargs -n1 basename 2>/dev/null | sed 's/app-//;s/\.sh$//' | sort)
+        
+        if [ -n "$apps" ]; then
+            _info "Available apps for $os_name:"
+            echo "$apps" | while read -r app; do
+                echo "  • $app"
+            done
+        else
+            _info "No apps available for $os_name yet."
+        fi
+    else
+        _error "Install directory not found: $install_dir"
+    fi
+}
+
+apps() {
+    local command="$1"
+    local app_name="$2"
+    local os_name=$(_detect_os)
+    local base_dir="$DOTFILES_ROOT/os/$os_name"
+    
+    case "$command" in
+        install|i)
+            if [ -z "$app_name" ]; then
+                _list_apps "$base_dir" "$os_name"
+                return 0
+            fi
+            
+            local script="$base_dir/install/app-${app_name}.sh"
+            if [ -f "$script" ]; then
+                bash "$script"
+            else
+                _error "Install script not found: $script"
+                _info "Use 'apps install' to see available apps"
+                return 1
+            fi
+            ;;
+        uninstall)
+            if [ -z "$app_name" ]; then
+                _list_apps "$base_dir" "$os_name"
+                return 0
+            fi
+            
+            local script="$base_dir/uninstall/app-${app_name}.sh"
+            if [ -f "$script" ]; then
+                bash "$script"
+            else
+                _error "Uninstall script not found: $script"
+                _info "Use 'apps uninstall' to see available apps"
+                return 1
+            fi
+            ;;
+        list|ls)
+            _list_apps "$base_dir" "$os_name"
+            ;;
+        *)
+            _header "Apps Command"
+            echo "Usage: apps {install|i|uninstall|list} [app-name]"
+            echo ""
+            echo "Commands:"
+            echo "  install, i [app]   Install an app (or list available)"
+            echo "  uninstall [app]    Uninstall an app (or list available)"
+            echo "  list, ls          List all available apps"
+            echo ""
+            _info "Detected OS: $os_name"
+            return 1
+            ;;
+    esac
+}

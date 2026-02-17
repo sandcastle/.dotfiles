@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# ---------------------------- DOTFILES ----------------------------
+
+# Set dotfiles directory (only if not already set by .zshenv)
+if [[ -z "$DOTFILES" ]]; then
+  if [[ -n "${BASH_SOURCE[0]}" ]]; then
+    export DOTFILES="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+  elif [[ -n "$0" ]]; then
+    export DOTFILES="$(cd "$(dirname "$0")/.." && pwd)"
+  else
+    echo "Error: Cannot determine dotfiles location" >&2
+    exit 1
+  fi
+fi
+
+# ---------------------------- SHELL ----------------------------
+
+# Prefer US English and use UTF-8.
+export LANG='en_US.UTF-8'
+export LC_ALL='en_US.UTF-8'
+
+# ---------------------------- HISTORY ----------------------------
+
+# Increase Bash history size. Allow 32³ entries; the default is 500.
+export HISTSIZE=32768
+export HISTFILESIZE=32768
+export SAVEHIST=32768
+
+# Omit duplicates and commands that begin with a space from history.
+export HISTCONTROL='ignoreboth'
+
+# ---------------------------- EDITORS ----------------------------
+
+export EDITOR='nvim'
+export KUBE_EDITOR='nvim'
+export VISUAL='nvim'
+
+# ---------------------------- PYTHON ----------------------------
+
+# Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
+export PYTHONIOENCODING='UTF-8'
+
+# ---------------------------- PATHS ----------------------------
+
+# Extra paths
+# Add to the list below when required
+paths=(
+  "~/.local/bin"
+  "~/bin"
+  "~/.local/share/JetBrains/Toolbox/scripts"
+)
+
+# Join paths with colon separator
+joined_paths=$(IFS=:; echo "${paths[*]}")
+export PATH="${joined_paths}:$PATH"
