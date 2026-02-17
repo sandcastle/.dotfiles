@@ -1,0 +1,106 @@
+# Git configuration - shared settings
+# User-specific settings (name, email) are in ~/.gitconfig.user
+# This file is symlinked from dotfiles repo
+
+[include]
+  # Load user-specific settings (name, email, etc.) - NOT tracked in git
+  path = ~/.gitconfig.user
+
+[alias]
+  c           = config --list  --local
+
+  up          = push -u origin
+  down        = pull --rebase
+  sync        = "!sh -c 'git down; git up' -"
+
+  st          = status --short
+  stv         = status -v
+
+  sq          = "!sh -c 'git merge --squash \"$1\"'"
+
+  save        = "!sh -c 'git add -A .; git commit -m \"$1\"' -"
+  saveall     = "!sh -c 'git commit -au -m \"$1\"' -"
+  discard     = checkout -- .
+  discardall  = reset --hard
+  undo        = reset HEAD~1 --mixed
+
+  # Branch shortcuts
+  feat        = "!sh -c 'git branch \"feature/$1\"; git checkout \"feature/$1\"' -"
+  fix         = "!sh -c 'git branch \"fix/$1\"; git checkout \"fix/$1\"' -"
+  hotfix      = "!sh -c 'git branch \"hotfix/$1\"; git checkout \"hotfix/$1\"' -"
+
+  first       = commit -au -m 'Initial commit.'
+
+  graph       = log --graph
+  last        = log -n 10
+
+[pull]
+  rebase = true
+
+[push]
+  default = current
+
+[color]
+  ui = auto
+
+[core]
+  editor = cursor
+  excludesfile = ~/.gitignore
+  ignorecase = false
+  pager = delta | moor
+
+[rebase]
+  autoStash = true
+
+[format]
+  pretty = %Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)%an%Creset %C(bold yellow)%GK%Creset
+  graph = true
+
+[advice]
+  statusHints = false
+
+[log]
+  abbrevCommit = true
+
+# gh:sandcastle/.dotfiles
+[url "git@github.com:"]
+  insteadOf = "gh:"
+  pushInsteadOf = "gh:"
+  pushInsteadOf = "git://github.com/"
+
+[url "git@gist.github.com:"]
+  insteadOf = "gist:"
+  pushInsteadOf = "gist:"
+  pushInsteadOf = "git://gist.github.com/"
+
+[mergetool]
+  keepBackup = false
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[color "diff-highlight"]
+  oldNormal = red bold
+  oldHighlight = red bold 52
+  newNormal = green bold
+  newHighlight = green bold 22
+
+[color "diff"]
+  meta = 11
+  frag = magenta bold
+  commit = yellow bold
+  old = red bold
+  new = green bold
+  whitespace = red reverse
+
+[commit]
+  gpgSign = false
+
+[tag]
+  forceSignAnnotated = false
+
+[rerere]
+  enabled = true

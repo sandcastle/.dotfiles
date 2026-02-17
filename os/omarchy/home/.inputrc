@@ -1,0 +1,16 @@
+# Perform completion ignoring case
+set completion-ignore-case on
+
+# List all matches immediately on first Tab press
+set show-all-if-ambiguous on
+
+# Use a menu-like list to cycle through completions
+Control-i: menu-complete
+TAB:menu-complete
+
+# Use Shift-Tab to cycle backwards
+"\e[Z": menu-complete-backward
+
+# Colorize the completion list (like 'ls' colors)
+set colored-stats On
+set colored-completion-prefix On

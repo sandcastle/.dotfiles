@@ -1,0 +1,8 @@
+.DS_Store
+
+**/*.cert
+**/*.bak
+
+# User-specific config with sensitve info
+**/home/*.local
+**/home/*.user
