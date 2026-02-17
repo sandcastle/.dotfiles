@@ -44,6 +44,21 @@ info "Installing dotfiles for $OS_NAME..."
 $DEBUG && info "Backup location: $BACKUP_DIR"
 $DEBUG && info "Running as user: $(whoami)"
 
+# Request sudo upfront for package installations (caches credentials for later use)
+if [[ -t 0 ]] && command -v sudo &> /dev/null; then
+    if ! sudo -n true 2>/dev/null; then
+        info "Some operations require sudo privileges"
+        info "Please enter your password to continue..."
+        if ! sudo -v; then
+            error "sudo authentication failed"
+            exit 1
+        fi
+        # Keep sudo alive in the background
+        (while true; do sleep 60; sudo -n true 2>/dev/null || break; done) &
+        SUDO_KEEPALIVE_PID=$!
+    fi
+fi
+
 DOTFILES_HOME="$DOTFILES_ROOT/os/$os_name/home"
 
 # Create backup directory (user directory, no sudo needed)
@@ -59,7 +74,13 @@ success "$OS_NAME dotfiles installed!"
 $DEBUG && info "Backups stored in: $BACKUP_DIR"
 
 # Install apps (handles both --all and interactive selection)
+# DEBUG is already exported (line 32), so install_os_apps will see it
 install_os_apps "$os_name" "$DOTFILES_ROOT" "$INSTALL_ALL"
+
+# Cleanup sudo keepalive process if it was started
+if [[ -n "${SUDO_KEEPALIVE_PID:-}" ]]; then
+    kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+fi
 
 info ""
 info "Note: System-wide changes may require sudo and will prompt when needed."

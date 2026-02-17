@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
+#
 # Install Google Cloud CLI (gcloud) with kubectl
 # https://cloud.google.com/sdk/docs/install-sdk#deb
 #
 # Uses the official Google Cloud SDK installer to enable gcloud components management
+#
 
-set -e
-# Redirect output if SILENT mode is enabled
-if [[ "${SILENT:-false}" == true ]]; then
-    exec > /dev/null 2>&1
-fi
+set -euo pipefail
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/../../../" && pwd)"
 source "$DOTFILES_ROOT/lib/common.sh"
@@ -16,128 +14,154 @@ source "$DOTFILES_ROOT/lib/common.sh"
 APP_NAME="Google Cloud CLI"
 BINARY="gcloud"
 DEBUG=${DEBUG:-false}
+SILENT=${SILENT:-false}
+
+# Redirect output if SILENT mode is enabled
+# Note: Only redirect stdout, keep stderr for errors
+if [[ "$SILENT" == true ]]; then
+    exec > /dev/null
+fi
 
 info "Installing $APP_NAME..."
 
-# Check if already installed
+# Install location
+INSTALL_PARENT="$USER_HOME/.local/share"
+GCLOUD_HOME="$INSTALL_PARENT/google-cloud-sdk"
+GCLOUD_BIN="$GCLOUD_HOME/bin/gcloud"
+
+# ============================================================================
+# Resolve gcloud path (install if needed)
+# ============================================================================
+
+GCLOUD_CMD=""
+
+# Check if gcloud is in PATH
 if command -v "$BINARY" &> /dev/null; then
-    info "$APP_NAME is already installed"
-    info "Version: $(${BINARY} --version 2>/dev/null | head -1 || echo 'unknown')"
+    GCLOUD_CMD="$BINARY"
+    info "Found $APP_NAME in PATH"
     
-    # Update components
-    info "Updating gcloud components..."
-    $BINARY components update --quiet 2>/dev/null || true
+# Check if installed but not in PATH
+elif [[ -f "$GCLOUD_BIN" ]]; then
+    GCLOUD_CMD="$GCLOUD_BIN"
+    info "Found $APP_NAME at $GCLOUD_HOME"
+    export PATH="$GCLOUD_HOME/bin:$PATH"
     
-    # Install kubectl component
-    info "Installing kubectl component..."
-    $BINARY components install kubectl --quiet 2>/dev/null || warn "kubectl component install may have failed"
-    
-    # Install other components
-    $BINARY components install cloud_sql_proxy --quiet 2>/dev/null || true
-    $BINARY components install gke-gcloud-auth-plugin --quiet 2>/dev/null || true
-    $BINARY components install docker-credential-gcr --quiet 2>/dev/null || true
-    
-    exit 0
-fi
-
-info "$APP_NAME - Google Cloud SDK"
-info "Website: https://cloud.google.com/sdk"
-
-# Install via official installer (not apt)
-# This allows us to use 'gcloud components install'
-info "Installing via official Google Cloud SDK installer..."
-
-INSTALL_DIR="$USER_HOME/.local/share/google-cloud-sdk"
-
-# Download and run the installer
-# In SILENT mode, redirect all output to suppress verbose download progress
-if [[ "$SILENT" == true ]]; then
-    curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir="$INSTALL_DIR" --path-update=false --command-completion=false --usage-reporting=false > /dev/null 2>&1
+# Need to install
 else
-    curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir="$INSTALL_DIR"
+    info "$APP_NAME - Google Cloud SDK"
+    info "Website: https://cloud.google.com/sdk"
+    info "Installing via official Google Cloud SDK installer..."
+    
+    # Remove incomplete installation if exists
+    if [[ -d "$GCLOUD_HOME" ]]; then
+        info "Removing incomplete installation..."
+        rm -rf "$GCLOUD_HOME"
+    fi
+    
+    # Download and run installer
+    if [[ "$SILENT" == true ]]; then
+        curl -fsSL https://sdk.cloud.google.com | bash -s -- \
+            --disable-prompts \
+            --install-dir="$INSTALL_PARENT" \
+            --path-update=false \
+            --command-completion=false \
+            --usage-reporting=false > /dev/null 2>&1
+    else
+        curl -fsSL https://sdk.cloud.google.com | bash -s -- \
+            --disable-prompts \
+            --install-dir="$INSTALL_PARENT"
+    fi
+    
+    # Verify installation
+    if [[ ! -f "$GCLOUD_BIN" ]]; then
+        error "Installation failed - gcloud not found at $GCLOUD_BIN"
+        exit 1
+    fi
+    
+    export PATH="$GCLOUD_HOME/bin:$PATH"
+    GCLOUD_CMD="$GCLOUD_BIN"
 fi
 
-# The installer creates a nested google-cloud-sdk directory
-# Check both possible paths and use whatever exists
-if [[ -f "$INSTALL_DIR/bin/gcloud" ]]; then
-    # Direct install (rare)
-    export PATH="$INSTALL_DIR/bin:$PATH"
-    $DEBUG && info "gcloud installed at: $INSTALL_DIR"
-elif [[ -f "$INSTALL_DIR/google-cloud-sdk/bin/gcloud" ]]; then
-    # Nested install (common) - use nested path without moving files
-    # Moving files breaks gcloud's component management
-    export PATH="$INSTALL_DIR/google-cloud-sdk/bin:$PATH"
-    $DEBUG && info "gcloud installed at: $INSTALL_DIR/google-cloud-sdk"
-fi
+# ============================================================================
+# Install/Update components
+# ============================================================================
 
-# Add to PATH for future sessions (use the actual install path)
-if ! grep -q "google-cloud-sdk" "$USER_HOME/.exports.os" 2>/dev/null; then
-    echo '' >> "$USER_HOME/.exports.os"
-    echo '# Google Cloud SDK' >> "$USER_HOME/.exports.os"
-    # Note: PATH may be nested depending on how installer extracted
-    echo 'export PATH="$HOME/.local/share/google-cloud-sdk/bin:$HOME/.local/share/google-cloud-sdk/google-cloud-sdk/bin:$PATH"' >> "$USER_HOME/.exports.os"
-fi
-
-# Verify gcloud is available
-if ! command -v "$BINARY" &> /dev/null; then
-    error "gcloud installation failed - not found in PATH"
-    exit 1
-fi
-
-# Install components via gcloud
 info "Installing gcloud components..."
-$BINARY components install kubectl --quiet || warn "kubectl component install failed"
-$BINARY components install cloud_sql_proxy --quiet || true
-$BINARY components install gke-gcloud-auth-plugin --quiet || true
-$BINARY components install docker-credential-gcr --quiet || true
 
-# Verify installations
-if command -v "$BINARY" &> /dev/null; then
-    success "$APP_NAME installed successfully!"
-    info "Version: $(${BINARY} --version 2>/dev/null | head -1)"
-    info "Location: $INSTALL_DIR"
-    
-    # Check installed components
-    if command -v kubectl &> /dev/null; then
-        info "  kubectl: $(kubectl version --client 2>/dev/null | head -1 || echo 'installed')"
-    fi
-    if command -v cloud_sql_proxy &> /dev/null; then
-        info "  cloud_sql_proxy: installed"
-    fi
-    if command -v docker-credential-gcr &> /dev/null; then
-        info "  docker-credential-gcr: installed"
-    fi
-    if command -v gke-gcloud-auth-plugin &> /dev/null; then
-        info "  gke-gcloud-auth-plugin: installed"
-    fi
-    
-    info ""
-    info "Next steps:"
-    info "  1. Run 'gcloud init' to authenticate"
-    info "  2. Run 'gcloud config set project YOUR_PROJECT_ID'"
-    info ""
-    info "To update components: gcloud components update"
-    info "To install more components: gcloud components install <component-name>"
+# Update first
+if [[ "$DEBUG" == true ]]; then
+    "$GCLOUD_CMD" components update --quiet
 else
-    error "$APP_NAME installation failed"
-    info "For manual installation: https://cloud.google.com/sdk/docs/install-sdk"
-    exit 1
+    "$GCLOUD_CMD" components update --quiet 2>&1 | grep -E '(ERROR|WARNING|Installing|Updating)' || true
 fi
 
-# Install bash completions
+# Install components
+for component in kubectl cloud_sql_proxy gke-gcloud-auth-plugin docker-credential-gcr; do
+    if [[ "$DEBUG" == true ]]; then
+        "$GCLOUD_CMD" components install "$component" --quiet || warn "Failed to install $component"
+    else
+        # Filter output but ensure the pipeline always succeeds
+        "$GCLOUD_CMD" components install "$component" --quiet 2>&1 | 
+            { grep -vE '^\s*$|All components are up to date' || true; }
+    fi
+done
+
+# ============================================================================
+# Verify and report
+# ============================================================================
+
+success "$APP_NAME installed successfully!"
+info "Version: $("$GCLOUD_CMD" --version 2>/dev/null | head -1)"
+info "Location: $GCLOUD_HOME"
+
+# Check installed components
+if command -v kubectl &> /dev/null; then
+    info "  kubectl: $(kubectl version --client 2>/dev/null | head -1 || echo 'installed')"
+fi
+if command -v cloud_sql_proxy &> /dev/null; then
+    info "  cloud_sql_proxy: installed"
+fi
+if command -v docker-credential-gcr &> /dev/null; then
+    info "  docker-credential-gcr: installed"
+fi
+if command -v gke-gcloud-auth-plugin &> /dev/null; then
+    info "  gke-gcloud-auth-plugin: installed"
+fi
+
+info ""
+info "Next steps:"
+info "  1. Run 'gcloud init' to authenticate"
+info "  2. Run 'gcloud config set project YOUR_PROJECT_ID'"
+info ""
+info "To update: gcloud components update"
+info "To add more: gcloud components install <component>"
+
+# ============================================================================
+# Install completions
+# ============================================================================
+
 info "Installing bash completions..."
-mkdir -p "$USER_HOME/.bash_completion.d"
+mkdir -p "$USER_HOME/.bash_completion.d" || true
 
 # gcloud completions
-if [[ -f "$INSTALL_DIR/completion.bash.inc" ]]; then
-    ln -sf "$INSTALL_DIR/completion.bash.inc" "$USER_HOME/.bash_completion.d/gcloud"
+if [[ -f "$GCLOUD_HOME/completion.bash.inc" ]]; then
+    ln -sf "$GCLOUD_HOME/completion.bash.inc" "$USER_HOME/.bash_completion.d/gcloud" || true
     success "gcloud completions installed"
 fi
 
-# kubectl completions
+# kubectl completions - check both PATH and GCLOUD_HOME/bin
+KUBECTL_BIN=""
 if command -v kubectl &> /dev/null; then
-    kubectl completion bash > "$USER_HOME/.bash_completion.d/kubectl"
-    success "kubectl completions installed"
+    KUBECTL_BIN="kubectl"
+elif [[ -f "$GCLOUD_HOME/bin/kubectl" ]]; then
+    KUBECTL_BIN="$GCLOUD_HOME/bin/kubectl"
+fi
+
+if [[ -n "$KUBECTL_BIN" ]]; then
+    "$KUBECTL_BIN" completion bash > "$USER_HOME/.bash_completion.d/kubectl" 2>/dev/null || true
+    if [[ -f "$USER_HOME/.bash_completion.d/kubectl" ]]; then
+        success "kubectl completions installed"
+    fi
 fi
 
 exit 0

@@ -41,6 +41,11 @@ shopt -s checkwinsize
 
 # --------------------------- ACTIVATION ----------------------------
 
+# Mise environments
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
+
 # Interactive-only settings
 if [[ "$TERM" != "dumb" ]]; then
 
@@ -60,11 +65,9 @@ if [[ "$TERM" != "dumb" ]]; then
 
   # Smarter cd command
   if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init bash)"
+    eval "$(starship init bash)"
   fi
 fi
 
-# Mise environments
-if command -v mise >/dev/null 2>&1; then
-  eval "$(mise activate bash)"
-fi
+# Source bash completions
+for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done

@@ -28,6 +28,13 @@ fi
 info "$APP_NAME - Kubernetes context and namespace switcher"
 info "Website: https://github.com/ahmetb/kubectx"
 
+# Check if sudo is available for package installation
+if ! sudo -n true 2>/dev/null; then
+    warn "Package installation requires sudo - skipping $APP_NAME"
+    info "Run 'sudo -v' to authenticate, then re-run: apps install kubectx"
+    exit 0
+fi
+
 # Install via AUR (kubectx is in AUR)
 info "Installing from AUR..."
 install_yay "kubectx" || {

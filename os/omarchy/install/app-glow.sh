@@ -31,9 +31,9 @@ info "Features: Render markdown files, GitHub/GitLab READMEs, and more"
 
 # Check if sudo is available for package installation
 if ! sudo -n true 2>/dev/null; then
-    warn "Package installation requires sudo privileges"
-    warn "Please run: sudo -v  # To authenticate, then re-run this script"
-    exit 1
+    warn "Package installation requires sudo - skipping $APP_NAME"
+    info "Run 'sudo -v' to authenticate, then re-run: apps install glow"
+    exit 0
 fi
 
 # Install via pacman (Charm packages are in official repos)

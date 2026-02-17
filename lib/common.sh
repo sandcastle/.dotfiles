@@ -338,17 +338,38 @@ symlink_all_dotfiles() {
     mkdir -p "$backup_dir"
     
     local count=0
-    for file in "$source_dir"/.[!.]*; do
-        # Check if path exists (follow symlinks with -L) and is not a directory
-        # -L tests if the symlink target exists (follows the link)
-        # -e tests if the path itself exists (symlink or regular file)
-        if ([ -L "$file" ] || [ -e "$file" ]) && [ ! -d "$file" ]; then
-            local filename=$(basename "$file")
-            local target="$target_dir/$filename"
-            symlink_dotfile "$file" "$target" "$backup_dir"
-            ((count++)) || true
+    # Find all files and symlinks recursively, including hidden files
+    while IFS= read -r -d '' file; do
+        # Get relative path from source_dir
+        local rel_path="${file#$source_dir/}"
+        local target="$target_dir/$rel_path"
+        local target_parent=$(dirname "$target")
+        
+        # Create parent directory if needed
+        if [[ "$target_parent" != "$target_dir" ]]; then
+            mkdir -p "$target_parent"
         fi
-    done
+        
+        # If source is a symlink, resolve it to the absolute path
+        local source="$file"
+        if [ -L "$file" ]; then
+            local source_parent=$(dirname "$file")
+            local rel_target=$(readlink "$file")
+            local resolved_source=$(cd "$source_parent" && realpath "$rel_target" 2>/dev/null || echo "$file")
+            if [ -e "$resolved_source" ]; then
+                source="$resolved_source"
+            fi
+        fi
+        
+        # Backup existing file/symlink if it exists
+        backup_file "$target" "$backup_dir" || true
+        
+        # Create the symlink (force overwrite)
+        ln -sf "$source" "$target"
+        success "Linked $rel_path"
+        $DEBUG && info "  → $source"
+        count=$((count + 1))
+    done < <(find "$source_dir" -type f -print0 -o -type l -print0 2>/dev/null)
     
     success "Installed $count dotfiles"
     $DEBUG && info "Backups in: $backup_dir"
