@@ -4,6 +4,8 @@
 # Source this file in OS-specific install.sh scripts
 #
 
+DEBUG=${DEBUG:-false}
+
 # Install all apps from the OS install directory
 # Arguments:
 #   $1 - OS name (e.g., "omarchy", "mac", "cloud-shell", "windows")
@@ -18,15 +20,15 @@ install_os_apps() {
     # Skip if --all was already passed and handled
     if [[ "$install_all" == "true" ]]; then
         if [[ -d "$install_dir" ]]; then
-            info "Installing all available apps..."
+            info "Installing apps..."
             
             local installed_count=0
             for app_script in "$install_dir"/app-*.sh; do
                 if [[ -f "$app_script" ]]; then
                     local app_name=$(basename "$app_script" | sed 's/app-//;s/\.sh$//')
-                    info "Installing $app_name..."
-                    if bash "$app_script"; then
+                    if bash "$app_script" 2>/dev/null; then
                         ((installed_count++))
+                        success "$app_name installed"
                     else
                         warn "Failed to install $app_name"
                     fi
@@ -34,7 +36,7 @@ install_os_apps() {
             done
             
             if (( installed_count > 0 )); then
-                success "$installed_count app(s) installed!"
+                success "$installed_count app(s) installed"
             else
                 warn "No apps were installed"
             fi
@@ -62,14 +64,14 @@ install_os_apps() {
         
         if confirm "Would you like to install all apps now?" false; then
             # Install all apps
-            info "Installing all available apps..."
+            info "Installing apps..."
             local installed_count=0
             for app_script in "$install_dir"/app-*.sh; do
                 if [[ -f "$app_script" ]]; then
                     local app_name=$(basename "$app_script" | sed 's/app-//;s/\.sh$//')
-                    info "Installing $app_name..."
-                    if bash "$app_script"; then
+                    if bash "$app_script" 2>/dev/null; then
                         ((installed_count++))
+                        success "$app_name installed"
                     else
                         warn "Failed to install $app_name"
                     fi
@@ -77,7 +79,7 @@ install_os_apps() {
             done
             
             if (( installed_count > 0 )); then
-                success "$installed_count app(s) installed!"
+                success "$installed_count app(s) installed"
             fi
         else
             # Offer multi-select to pick specific apps
@@ -119,16 +121,16 @@ install_os_apps() {
             
             # Install selected apps
             if [[ -n "$selected_apps" ]]; then
-                info "Installing selected apps..."
+                info "Installing apps..."
                 local installed_count=0
                 
                 while IFS= read -r app_name; do
                     if [[ -n "$app_name" ]]; then
                         local app_script="$install_dir/app-${app_name}.sh"
                         if [[ -f "$app_script" ]]; then
-                            info "Installing $app_name..."
-                            if bash "$app_script"; then
+                            if bash "$app_script" 2>/dev/null; then
                                 ((installed_count++))
+                                success "$app_name installed"
                             else
                                 warn "Failed to install $app_name"
                             fi
@@ -137,7 +139,7 @@ install_os_apps() {
                 done <<< "$selected_apps"
                 
                 if (( installed_count > 0 )); then
-                    success "$installed_count app(s) installed!"
+                    success "$installed_count app(s) installed"
                 fi
             else
                 info "No apps selected for installation"
@@ -171,7 +173,7 @@ remove_dotfile_symlinks() {
             # Remove if it's a symlink
             if [[ -L "$symlink_path" ]]; then
                 rm -f "$symlink_path"
-                info "Removed: $symlink_path"
+                $DEBUG && info "Removed: $symlink_path"
                 ((removed_count++))
             fi
         done
@@ -218,7 +220,7 @@ uninstall_os_apps() {
         done
         
         if (( uninstalled_count > 0 )); then
-            success "$uninstalled_count app(s) uninstalled!"
+            success "$uninstalled_count app(s) uninstalled"
         fi
     else
         warn "No uninstall directory found at $uninstall_dir"

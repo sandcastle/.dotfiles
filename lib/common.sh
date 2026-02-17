@@ -17,6 +17,7 @@ set -e
 # ============================================================================
 
 DOTFILES_ROOT="${DOTFILES_ROOT:-$HOME/.dotfiles}"
+DEBUG=${DEBUG:-false}
 
 # Load theme configuration
 if [ -f "$DOTFILES_ROOT/lib/theme.sh" ]; then
@@ -244,7 +245,7 @@ backup_file() {
         mkdir -p "$backup_dir"
         local filename=$(basename "$file")
         mv "$file" "$backup_dir/$filename"
-        info "Backed up $filename → $backup_dir"
+        $DEBUG && info "Backed up $filename"
         return 0
     fi
     
@@ -254,7 +255,7 @@ backup_file() {
         local filename=$(basename "$file")
         cp -a "$file" "$backup_dir/$filename"
         rm "$file"
-        info "Backed up symlink $filename → $backup_dir"
+        $DEBUG && info "Backed up symlink $filename"
         return 0
     fi
     
@@ -292,7 +293,8 @@ symlink_dotfile() {
     
     # Create the symlink
     ln -sf "$source" "$target"
-    success "Linked $filename → $source"
+    success "Linked $filename"
+    $DEBUG && info "  → $source"
 }
 
 # Symlink all dotfiles from a directory with progress
@@ -302,8 +304,8 @@ symlink_all_dotfiles() {
     local backup_dir="$3"
     
     section "Installing dotfiles"
-    info "Source: $source_dir"
-    info "Backup location: $backup_dir"
+    $DEBUG && info "Source: $source_dir"
+    $DEBUG && info "Backup: $backup_dir"
     
     mkdir -p "$backup_dir"
     
@@ -321,7 +323,7 @@ symlink_all_dotfiles() {
     done
     
     success "Installed $count dotfiles"
-    info "Backups stored in: $backup_dir"
+    $DEBUG && info "Backups in: $backup_dir"
 }
 
 # ============================================================================

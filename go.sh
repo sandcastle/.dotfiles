@@ -4,7 +4,8 @@
 #
 # Options:
 #   --install    Skip cloning, just run installer (for existing repos)
-#   --all        Install all apps after dotfiles (passed through to os/install.sh)
+#   --all        Install all apps after dotfiles
+#   --debug      Show verbose output with paths and details
 
 set -e
 
@@ -14,10 +15,16 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 # Parse arguments
 INSTALL_ONLY=false
 INSTALL_ARGS=""
+DEBUG=false
+
 for arg in "$@"; do
     case "$arg" in
         --install)
             INSTALL_ONLY=true
+            ;;
+        --debug)
+            DEBUG=true
+            INSTALL_ARGS="$INSTALL_ARGS --debug"
             ;;
         --all|--help|-h)
             INSTALL_ARGS="$INSTALL_ARGS $arg"
@@ -42,7 +49,7 @@ header() {
 }
 
 run_installer() {
-    echo -e "${C_INFO}  • Running installer...${C_RESET}"
+    $DEBUG && echo -e "${C_INFO}  • Running installer...${C_RESET}"
     bash "$DOTFILES_DIR/os/install.sh" $INSTALL_ARGS
 }
 
@@ -54,7 +61,7 @@ if [[ "$INSTALL_ONLY" == true ]]; then
         run_installer
     else
         echo -e "${C_ERROR}  ✗ Dotfiles not found at $DOTFILES_DIR${C_RESET}"
-        echo -e "${C_INFO}  • Run without --install to clone first${C_RESET}"
+        $DEBUG && echo -e "${C_INFO}  • Run without --install to clone first${C_RESET}"
         exit 1
     fi
     exit 0
@@ -62,25 +69,16 @@ fi
 
 # Full install mode: clone or update, then install
 if [[ -d "$DOTFILES_DIR/.git" ]]; then
-    echo -e "${C_INFO}  • Dotfiles already exist at $DOTFILES_DIR${C_RESET}"
-    echo -e "${C_INFO}  • Updating to latest version...${C_RESET}"
+    $DEBUG && echo -e "${C_INFO}  • Updating dotfiles...${C_RESET}"
     cd "$DOTFILES_DIR"
     git pull origin main 2>/dev/null || git pull origin master 2>/dev/null || true
 else
-    echo -e "${C_INFO}  • Cloning dotfiles to $DOTFILES_DIR...${C_RESET}"
-    git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
+    $DEBUG && echo -e "${C_INFO}  • Cloning dotfiles...${C_RESET}"
+    git clone "$DOTFILES_REPO" "$DOTFILES_DIR" 2>/dev/null || true
 fi
 
-echo ""
 run_installer
 
 echo ""
-echo -e "${C_SUCCESS}  ✓ Installation complete!${C_RESET}"
-echo ""
-echo -e "${C_INFO}  Your dotfiles are located at: $DOTFILES_DIR${C_RESET}"
-echo ""
-echo -e "${C_PRIMARY}${C_BOLD}  Quick Commands:${C_RESET}"
-echo -e "${C_INFO}    apps install <app-name>      Install an app${C_RESET}"
-echo -e "${C_INFO}    apps uninstall <app-name>    Uninstall an app${C_RESET}"
-echo -e "${C_INFO}    apps install                 List available apps${C_RESET}"
+echo -e "${C_SUCCESS}  ✓ Done!${C_RESET}"
 echo ""

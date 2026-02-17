@@ -2,8 +2,9 @@
 # Main dotfiles installer - detects OS and runs appropriate installer
 # Located in os/install.sh - called by go.sh from root
 #
-# Usage: ./install.sh [--all] [--help]
-#   --all  Install all available apps after dotfiles setup
+# Usage: ./install.sh [--all] [--debug] [--help]
+#   --all    Install all available apps after dotfiles setup
+#   --debug  Show verbose output with paths and details
 
 set -e
 
@@ -14,15 +15,23 @@ source "$DOTFILES_ROOT/lib/common.sh"
 
 # Parse arguments to pass through to OS installer
 INSTALL_ARGS=""
+DEBUG=false
+
 for arg in "$@"; do
     case "$arg" in
         --all)
             INSTALL_ARGS="$INSTALL_ARGS --all"
             ;;
+        --debug)
+            DEBUG=true
+            INSTALL_ARGS="$INSTALL_ARGS --debug"
+            export DEBUG
+            ;;
         --help|-h)
-            echo "Usage: $(basename "$0") [--all] [--help]"
-            echo "  --all  Install all available apps after dotfiles setup"
-            echo "  --help Show this help message"
+            echo "Usage: $(basename "$0") [--all] [--debug] [--help]"
+            echo "  --all    Install all available apps after dotfiles setup"
+            echo "  --debug  Show verbose output with paths and details"
+            echo "  --help   Show this help message"
             exit 0
             ;;
     esac
@@ -35,7 +44,7 @@ OS=$(detect_os)
 WINDOWS_SHELL=$(detect_windows_shell)
 
 info "Installing dotfiles for $OS"
-info "Location: $DOTFILES_ROOT"
+$DEBUG && info "Location: $DOTFILES_ROOT"
 
 # Function to run OS-specific init
 case "$OS" in
@@ -57,8 +66,6 @@ case "$OS" in
         ;;
     unknown)
         error "Unable to detect operating system."
-        info "OSTYPE: $OSTYPE"
-        warn "Please run the OS-specific installer manually from $DOTFILES_ROOT/os/"
         exit 1
         ;;
 esac
