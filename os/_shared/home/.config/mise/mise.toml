@@ -1,0 +1,12 @@
+[tools]
+dotnet = "latest"
+go = "latest"
+node = "latest"
+pnpm = "latest"
+python = "latest"
+uv = "latest"
+yarn = "latest"
+
+[settings]
+idiomatic_version_file_enable_tools = []
+experimental = true

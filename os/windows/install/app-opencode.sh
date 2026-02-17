@@ -5,6 +5,10 @@
 # OpenCode - AI-powered coding assistant CLI
 
 set -e
+# Redirect output if SILENT mode is enabled
+if [[ "${SILENT:-false}" == true ]]; then
+    exec > /dev/null 2>&1
+fi
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/../../../" && pwd)"
 source "$DOTFILES_ROOT/lib/common.sh"

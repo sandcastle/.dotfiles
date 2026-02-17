@@ -5,6 +5,10 @@
 # The official GitHub command-line tool
 
 set -e
+# Redirect output if SILENT mode is enabled
+if [[ "${SILENT:-false}" == true ]]; then
+    exec > /dev/null 2>&1
+fi
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/../../../" && pwd)"
 source "$DOTFILES_ROOT/lib/common.sh"
@@ -83,3 +87,5 @@ if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/
     echo '# Source bash completions' >> "$USER_HOME/.bashrc"
     echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$USER_HOME/.bashrc"
 fi
+
+exit 0

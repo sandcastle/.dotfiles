@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
-# Install Google Cloud CLI (gcloud) with kubectl and additional components
+# Install Google Cloud CLI (gcloud) with kubectl
 # https://cloud.google.com/sdk/docs/install-sdk#deb
 #
-# Also installs: kubectl, cloud_sql_proxy, gke-gcloud-auth-plugin, docker-credential-gcr (via gcloud components)
+# Uses the official Google Cloud SDK installer to enable gcloud components management
 
 set -e
+# Redirect output if SILENT mode is enabled
+if [[ "${SILENT:-false}" == true ]]; then
+    exec > /dev/null 2>&1
+fi
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/../../../" && pwd)"
 source "$DOTFILES_ROOT/lib/common.sh"
 
 APP_NAME="Google Cloud CLI"
 BINARY="gcloud"
+DEBUG=${DEBUG:-false}
 
 info "Installing $APP_NAME..."
 
@@ -19,44 +24,78 @@ if command -v "$BINARY" &> /dev/null; then
     info "$APP_NAME is already installed"
     info "Version: $(${BINARY} --version 2>/dev/null | head -1 || echo 'unknown')"
     
-    # Ensure components are installed
-    info "Ensuring all gcloud components are installed..."
-    $BINARY components install kubectl --quiet 2>/dev/null || true
+    # Update components
+    info "Updating gcloud components..."
+    $BINARY components update --quiet 2>/dev/null || true
+    
+    # Install kubectl component
+    info "Installing kubectl component..."
+    $BINARY components install kubectl --quiet 2>/dev/null || warn "kubectl component install may have failed"
+    
+    # Install other components
     $BINARY components install cloud_sql_proxy --quiet 2>/dev/null || true
     $BINARY components install gke-gcloud-auth-plugin --quiet 2>/dev/null || true
     $BINARY components install docker-credential-gcr --quiet 2>/dev/null || true
+    
     exit 0
 fi
 
-info "$APP_NAME - Google Cloud SDK with kubectl"
+info "$APP_NAME - Google Cloud SDK"
 info "Website: https://cloud.google.com/sdk"
 
-# Install via Google Cloud APT repository
-info "Adding Google Cloud SDK APT repository..."
+# Install via official installer (not apt)
+# This allows us to use 'gcloud components install'
+info "Installing via official Google Cloud SDK installer..."
 
-# Add the Cloud SDK distribution URI as a package source
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list > /dev/null
+INSTALL_DIR="$USER_HOME/.local/share/google-cloud-sdk"
 
-# Import the Google Cloud public key
-curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+# Download and run the installer
+# In SILENT mode, redirect all output to suppress verbose download progress
+if [[ "$SILENT" == true ]]; then
+    curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir="$INSTALL_DIR" --path-update=false --command-completion=false --usage-reporting=false > /dev/null 2>&1
+else
+    curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir="$INSTALL_DIR"
+fi
 
-# Update and install
-info "Updating package lists..."
-sudo apt-get update
+# The installer creates a nested google-cloud-sdk directory
+# Check both possible paths and use whatever exists
+if [[ -f "$INSTALL_DIR/bin/gcloud" ]]; then
+    # Direct install (rare)
+    export PATH="$INSTALL_DIR/bin:$PATH"
+    $DEBUG && info "gcloud installed at: $INSTALL_DIR"
+elif [[ -f "$INSTALL_DIR/google-cloud-sdk/bin/gcloud" ]]; then
+    # Nested install (common) - use nested path without moving files
+    # Moving files breaks gcloud's component management
+    export PATH="$INSTALL_DIR/google-cloud-sdk/bin:$PATH"
+    $DEBUG && info "gcloud installed at: $INSTALL_DIR/google-cloud-sdk"
+fi
 
-info "Installing Google Cloud CLI packages..."
-sudo apt-get install -y google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin
+# Add to PATH for future sessions (use the actual install path)
+if ! grep -q "google-cloud-sdk" "$USER_HOME/.exports.os" 2>/dev/null; then
+    echo '' >> "$USER_HOME/.exports.os"
+    echo '# Google Cloud SDK' >> "$USER_HOME/.exports.os"
+    # Note: PATH may be nested depending on how installer extracted
+    echo 'export PATH="$HOME/.local/share/google-cloud-sdk/bin:$HOME/.local/share/google-cloud-sdk/google-cloud-sdk/bin:$PATH"' >> "$USER_HOME/.exports.os"
+fi
 
-# Install additional components via gcloud
+# Verify gcloud is available
+if ! command -v "$BINARY" &> /dev/null; then
+    error "gcloud installation failed - not found in PATH"
+    exit 1
+fi
+
+# Install components via gcloud
 info "Installing gcloud components..."
-$BINARY components install kubectl --quiet 2>/dev/null || warn "kubectl component install may require additional setup"
-$BINARY components install cloud_sql_proxy --quiet 2>/dev/null || warn "cloud_sql_proxy component install may require additional setup"
-$BINARY components install docker-credential-gcr --quiet 2>/dev/null || warn "docker-credential-gcr component install may require additional setup"
+$BINARY components install kubectl --quiet || warn "kubectl component install failed"
+$BINARY components install cloud_sql_proxy --quiet || true
+$BINARY components install gke-gcloud-auth-plugin --quiet || true
+$BINARY components install docker-credential-gcr --quiet || true
 
 # Verify installations
 if command -v "$BINARY" &> /dev/null; then
     success "$APP_NAME installed successfully!"
     info "Version: $(${BINARY} --version 2>/dev/null | head -1)"
+    info "Location: $INSTALL_DIR"
     
     # Check installed components
     if command -v kubectl &> /dev/null; then
@@ -76,6 +115,9 @@ if command -v "$BINARY" &> /dev/null; then
     info "Next steps:"
     info "  1. Run 'gcloud init' to authenticate"
     info "  2. Run 'gcloud config set project YOUR_PROJECT_ID'"
+    info ""
+    info "To update components: gcloud components update"
+    info "To install more components: gcloud components install <component-name>"
 else
     error "$APP_NAME installation failed"
     info "For manual installation: https://cloud.google.com/sdk/docs/install-sdk"
@@ -87,20 +129,15 @@ info "Installing bash completions..."
 mkdir -p "$USER_HOME/.bash_completion.d"
 
 # gcloud completions
-if [[ -f "/usr/share/google-cloud-sdk/completion.bash.inc" ]]; then
-    ln -sf /usr/share/google-cloud-sdk/completion.bash.inc "$USER_HOME/.bash_completion.d/gcloud"
+if [[ -f "$INSTALL_DIR/completion.bash.inc" ]]; then
+    ln -sf "$INSTALL_DIR/completion.bash.inc" "$USER_HOME/.bash_completion.d/gcloud"
     success "gcloud completions installed"
 fi
 
-# kubectl completion
+# kubectl completions
 if command -v kubectl &> /dev/null; then
     kubectl completion bash > "$USER_HOME/.bash_completion.d/kubectl"
     success "kubectl completions installed"
 fi
 
-# Ensure completion loader is in .bashrc
-if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/dev/null; then
-    echo '' >> "$USER_HOME/.bashrc"
-    echo '# Source bash completions' >> "$USER_HOME/.bashrc"
-    echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$USER_HOME/.bashrc"
-fi
+exit 0

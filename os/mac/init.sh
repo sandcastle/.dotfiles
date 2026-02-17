@@ -19,6 +19,8 @@ INIT_APPS=(
     "app-git.sh"          # Required for dotfiles
     "app-gum.sh"          # Required for pretty output
     "app-mise.sh"         # Required for dev environment management
+    "app-starship.sh"     # Required for shell prompt
+    "app-zoxide.sh"       # Required for smarter cd
 )
 
 INIT_DIR="$DOTFILES_ROOT/os/mac/init"

@@ -5,6 +5,10 @@
 # Render markdown in the terminal with style
 
 set -e
+# Redirect output if SILENT mode is enabled
+if [[ "${SILENT:-false}" == true ]]; then
+    exec > /dev/null 2>&1
+fi
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/../../../" && pwd)"
 source "$DOTFILES_ROOT/lib/common.sh"
@@ -24,6 +28,13 @@ fi
 info "$APP_NAME - A markdown renderer for the terminal"
 info "GitHub: https://github.com/charmbracelet/glow"
 info "Features: Render markdown files, GitHub/GitLab READMEs, and more"
+
+# Check if sudo is available for package installation
+if ! sudo -n true 2>/dev/null; then
+    warn "Package installation requires sudo privileges"
+    warn "Please run: sudo -v  # To authenticate, then re-run this script"
+    exit 1
+fi
 
 # Install via pacman (Charm packages are in official repos)
 info "Installing from Arch repositories..."
@@ -78,3 +89,5 @@ if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/
     echo '# Source bash completions' >> "$USER_HOME/.bashrc"
     echo 'for f in ~/.bash_completion.d/*; do [[ -f "$f" ]] && source "$f"; done' >> "$USER_HOME/.bashrc"
 fi
+
+exit 0

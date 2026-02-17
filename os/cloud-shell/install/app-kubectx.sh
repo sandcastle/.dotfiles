@@ -4,6 +4,10 @@
 # Installs both kubectx and kubens binaries
 
 set -e
+# Redirect output if SILENT mode is enabled
+if [[ "${SILENT:-false}" == true ]]; then
+    exec > /dev/null 2>&1
+fi
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/../../../" && pwd)"
 source "$DOTFILES_ROOT/lib/common.sh"
@@ -84,3 +88,5 @@ if [[ -f "$HOME/.bashrc" ]] && ! grep -q "bash_completion.d" "$HOME/.bashrc" 2>/
 fi
 
 success "Completions installed"
+
+exit 0

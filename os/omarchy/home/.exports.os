@@ -11,8 +11,9 @@
 # Extra paths
 # Add to the list below when required
 paths=(
-  "/opt/google-cloud-cli/bin"
-  "~/.local/share/JetBrains/Toolbox/scripts"
+  "$HOME/.local/share/google-cloud-sdk/bin"
+  "$HOME/.local/share/google-cloud-sdk/google-cloud-sdk/bin"
+  "$HOME/.local/share/JetBrains/Toolbox/scripts"
 )
 
 # Join paths with colon separator

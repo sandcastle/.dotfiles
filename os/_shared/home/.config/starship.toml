@@ -1,0 +1,37 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts
+add_newline = true
+
+# Increase command timeout to prevent timeouts with Node.js version detection
+command_timeout = 600
+
+# Replace the '❯' symbol in the prompt with '➜'
+[character] # The name of the module we are configuring is 'character'
+success_symbol = '[➜](bold green)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
+
+[nodejs]
+symbol = '📦 '
+
+[mise]
+format = '🐭 [$health]($style) '
+disabled = false
+
+[terraform]
+detect_files = ['*.tf', '*.tfvars']
+
+[git_branch]
+symbol = '🌱 '
+format = 'on [$symbol$branch(:$remote_branch)]($style) '
+
+[git_state]
+format = '([\[$all_status\] \[$ahead_behind$count\] ( $progress_current of $progress_total)]($style) )'
+cherry_pick = '[🍒 PICKING](bold red)'
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+# format = 'on [$symbol\($project\)]($style) '

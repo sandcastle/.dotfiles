@@ -30,14 +30,25 @@ get_user_home() {
 USER_HOME=$(get_user_home)
 DOTFILES_ROOT="${DOTFILES_ROOT:-$USER_HOME/.dotfiles}"
 DEBUG=${DEBUG:-false}
+SILENT=${SILENT:-false}
 
 # Load theme configuration
 if [ -f "$DOTFILES_ROOT/lib/theme.sh" ]; then
     source "$DOTFILES_ROOT/lib/theme.sh"
 fi
 
-# Check if gum is available
+# Disable gum in SILENT mode to avoid terminal control issues
+if [[ "$SILENT" == true ]]; then
+    # Override has_gum to return false
+    has_gum() { return 1; }
+fi
+
+# Check if gum is available (disabled in SILENT mode)
 has_gum() {
+    # Disable gum in SILENT mode to avoid terminal control issues
+    if [[ "${SILENT:-false}" == true ]]; then
+        return 1
+    fi
     command -v gum &> /dev/null
 }
 
@@ -307,6 +318,7 @@ symlink_dotfile() {
     ln -sf "$source" "$target"
     success "Linked $filename"
     $DEBUG && info "  → $source"
+    return 0
 }
 
 # Symlink all dotfiles from a directory with progress
@@ -340,6 +352,7 @@ symlink_all_dotfiles() {
     
     success "Installed $count dotfiles"
     $DEBUG && info "Backups in: $backup_dir"
+    return 0
 }
 
 # ============================================================================

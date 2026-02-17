@@ -35,8 +35,8 @@ install_os_apps() {
                             error "Failed to install $app_name"
                         fi
                     else
-                        # Suppress output normally
-                        if bash "$app_script" 2>/dev/null; then
+                        # Suppress output normally using SILENT mode
+                        if env SILENT=true bash "$app_script" > /dev/null 2>&1; then
                             ((installed_count++))
                             success "$app_name installed"
                         else
@@ -89,8 +89,8 @@ install_os_apps() {
                             error "Failed to install $app_name"
                         fi
                     else
-                        # Suppress output normally
-                        if bash "$app_script" 2>/dev/null; then
+                        # Suppress output normally using SILENT mode
+                        if env SILENT=true bash "$app_script" > /dev/null 2>&1; then
                             ((installed_count++))
                             success "$app_name installed"
                         else
@@ -150,23 +150,23 @@ install_os_apps() {
                     if [[ -n "$app_name" ]]; then
                         local app_script="$install_dir/app-${app_name}.sh"
                         if [[ -f "$app_script" ]]; then
-                            if [[ "$DEBUG" == true ]]; then
-                                # Show full output when debugging
-                                if bash "$app_script"; then
-                                    ((installed_count++))
-                                    success "$app_name installed"
-                                else
-                                    error "Failed to install $app_name"
-                                fi
-                            else
-                                # Suppress output normally
-                                if bash "$app_script" 2>/dev/null; then
-                                    ((installed_count++))
-                                    success "$app_name installed"
-                                else
-                                    warn "Failed to install $app_name"
-                                fi
-                            fi
+                    if [[ "$DEBUG" == true ]]; then
+                        # Show full output when debugging
+                        if bash "$app_script"; then
+                            ((installed_count++))
+                            success "$app_name installed"
+                        else
+                            error "Failed to install $app_name"
+                        fi
+                    else
+                        # Suppress output normally using SILENT mode
+                        if env SILENT=true bash "$app_script" > /dev/null 2>&1; then
+                            ((installed_count++))
+                            success "$app_name installed"
+                        else
+                            warn "Failed to install $app_name"
+                        fi
+                    fi
                         fi
                     fi
                 done <<< "$selected_apps"

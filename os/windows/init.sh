@@ -24,6 +24,8 @@ case "$SHELL_TYPE" in
             "app-git.sh"      # Required - included with Git for Windows
             "app-gum.sh"      # Required for pretty output
             "app-mise.sh"     # Required for dev environment management
+            "app-starship.sh" # Required for shell prompt
+            "app-zoxide.sh"   # Required for smarter cd
         )
         ;;
     wsl)
@@ -32,6 +34,8 @@ case "$SHELL_TYPE" in
             "app-git.sh"      # Required for dotfiles
             "app-gum.sh"      # Required for pretty output
             "app-mise.sh"     # Required for dev environment management
+            "app-starship.sh" # Required for shell prompt
+            "app-zoxide.sh"   # Required for smarter cd
         )
         ;;
     cygwin)
@@ -40,6 +44,8 @@ case "$SHELL_TYPE" in
             "app-git.sh"      # Required for dotfiles
             "app-gum.sh"      # Required for pretty output
             "app-mise.sh"     # Required for dev environment management
+            "app-starship.sh" # Required for shell prompt
+            "app-zoxide.sh"   # Required for smarter cd
         )
         ;;
     *)

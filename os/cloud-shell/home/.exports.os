@@ -6,8 +6,8 @@
 # Cloud Shell project configuration
 # export DEVSHELL_PROJECT_ID="your-project-id"
 
-# Google Cloud SDK path (usually pre-configured)
-# export PATH="$HOME/google-cloud-sdk/bin:$PATH"
+# Google Cloud SDK path (usually pre-configured in Cloud Shell)
+# Adding local install path in case user installs newer version via script
 
 # Example: Set default region
 # export CLOUDSDK_COMPUTE_REGION=us-central1
@@ -17,6 +17,7 @@
 # Extra paths
 # Add to the list below when required
 paths=(
+  "$HOME/.local/share/google-cloud-sdk/bin"
 )
 
 # Join paths with colon separator

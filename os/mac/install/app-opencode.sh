@@ -5,6 +5,10 @@
 # OpenCode - AI-powered coding assistant CLI
 
 set -e
+# Redirect output if SILENT mode is enabled
+if [[ "${SILENT:-false}" == true ]]; then
+    exec > /dev/null 2>&1
+fi
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/../../../" && pwd)"
 source "$DOTFILES_ROOT/lib/common.sh"
@@ -106,3 +110,5 @@ if [[ -f "$HOME/.bashrc" ]] && ! grep -q "\.local/bin" "$HOME/.bashrc" 2>/dev/nu
     echo '# User local bin' >> "$USER_HOME/.bashrc"
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$USER_HOME/.bashrc"
 fi
+
+exit 0
