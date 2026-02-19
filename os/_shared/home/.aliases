@@ -1,7 +1,7 @@
 # ------------------------------ SHORTCUTS -------------------------------
 
-alias work="cd ~/Work"
 alias desk="cd ~/Desktop"
+alias wo="cd ~/Work"
 
 # Enable aliases to be sudo'ed
 alias sudo='sudo '
