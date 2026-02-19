@@ -1,0 +1,29 @@
+{
+    "claudeCode.preferredLocation": "panel",
+    "debug.console.fontSize": 12,
+    "dev.containers.experimentalMountGitWorktreeCommonDir": true,
+    "editor.fontSize": 12,
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "files.autoSave": "afterDelay",
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+    "http.systemCertificatesNode": true,
+    "redhat.telemetry.enabled": false,
+    "scm.defaultViewMode": "tree",
+    "scm.diffDecorationsIgnoreTrimWhitespace": "true",
+    "scm.inputFontSize": 12,
+    "terminal.integrated.fontLigatures.enabled": true,
+    "terminal.integrated.fontSize": 12,
+    "terminal.integrated.fontWeightBold": "bold",
+    "update.mode": "none",
+    "window.newWindowProfile": "Default",
+    "workbench.colorTheme": "Tokyo Night Storm",
+
+    "[shellscript]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format",
+        "files.eol": "\n",
+        "editor.defaultColorDecorators": "never"
+    },
+}
